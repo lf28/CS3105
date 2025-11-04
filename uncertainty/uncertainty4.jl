@@ -21,6 +21,7 @@ begin
 	using PlutoTeachingTools
 	using PlutoUI
 	using Plots; default(fontfamily="Computer Modern", framestyle=:box) # LaTex-style
+	default(dpi=300)
 	using Distributions
 	# using LinearAlgebra
 	using StatsPlots
@@ -35,6 +36,9 @@ begin
 	using LinearAlgebra
 	# using Dagitty
 end
+
+# ╔═╡ 240783c5-3acc-4cdb-ad82-d81b096b203b
+using Zygote
 
 # ╔═╡ eeb9e3c7-974d-4f30-b960-f31b952cb79d
 TableOfContents()
@@ -517,15 +521,191 @@ TwoColumn(md"""
 
 
 #### The CPF for ``y^{(i)}`` given its parents: ``\mathbf{x}^{(i)}, \mathbf{w}``:
-* ##### Bernoulli with a bias
 
 ```math
-\large p(y^{(i)}|\mathbf{x}^{(i)}, \mathbf{w}) = \begin{cases} \sigma(\mathbf{w}^\top \mathbf{x}^{(i)})& y^{(i)} = 1\\ 1- \sigma(\mathbf{w}^\top \mathbf{x}^{(i)})& y^{(i)} = 0\end{cases} 
+\large
+
+\begin{align}p(y^{(i)}|\mathbf{w}, \mathbf{x}^{(i)}) &= \texttt{Bernoulli}(\sigma^{(i)}) \\ &=\begin{cases}\sigma^{(i)} & y^{(i)} =1
+ \\
+1-\sigma^{(i)} & y^{(i)} = 0   \end{cases}\end{align}
 ```
+* ##### Bernoulli with a bias ``\sigma^{(i)} =\sigma(\mathbf{w}^\top\mathbf{x}^{(i)})``
+
 
 
 
 """, html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/logistic_first.png' width = '180' /></center>")
+
+# ╔═╡ 62e7f402-81cd-46d8-8f31-12f2a7a13a4c
+md"""
+
+## Bayesian logistic regression
+
+
+#### Now learning becomes an ordinary Bayesian inference problem
+
+* #### which $\mathbf{w}$ is more probable ?
+
+
+$$\Large p(\mathbf{w}|\{{y}_1, \ldots, y_n\})$$
+
+"""
+
+# ╔═╡ e23376c2-7be5-4366-95d2-5f665999b218
+Foldable("Bayes' rule", md"""
+
+$$\Large p(\mathbf{w}|\mathbf{y}) =  \frac{p(\mathbf{w}, \mathbf{y})}{p(\mathbf{y})} = \frac{p(\mathbf{w}, \mathbf{y})}{\int p(\mathbf{w}, \mathbf{y})d\mathbf{w}}$$
+""")
+
+# ╔═╡ 925077d1-448b-43a1-9734-1272ffe78790
+md"""
+
+
+## Probabilistic generative view of logistic regression
+
+
+"""
+
+# ╔═╡ 2b799a1d-e701-4051-93dd-536d25e60b6b
+TwoColumnWideLeft(md"""
+
+
+
+#### The model $p(y|\mathbf{w}, \mathbf{x})$ provides
+* ##### a _probabilistic_ **generative** view for each binary label $y$
+
+
+				  
+
+> ```math
+> \large
+> 
+> \begin{align}p(y^{(i)}|\mathbf{w}, \mathbf{x}^{(i)}) &= \texttt{Bernoulli}(\sigma^{(i)}) \\ &=\begin{cases}\sigma^{(i)} & y^{(i)} =1
+> \\
+> 1-\sigma^{(i)} & y^{(i)} = 0   \end{cases}\end{align}
+> ```
+
+* ##### short-hand notation ``\sigma^{(i)} =\sigma(\mathbf{w}^\top\mathbf{x}^{(i)})``
+
+
+
+""", html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/logistic_first.png' width = '180' /></center>")
+
+# ╔═╡ 84128906-ff8c-4d47-a4d1-4b1c5beccc96
+md"""
+
+
+## Probabilistic generative view of logistic regression
+
+
+"""
+
+# ╔═╡ 403cb537-e814-4b06-8283-150a7dc75de7
+TwoColumnWideLeft(md"""
+
+
+\
+\
+				  
+#### In other words, 
+---
+
+##### for each ``\mathbf{x}^{(i)}``
+  * ##### compute bias ``\sigma^{(i)} =\sigma(\mathbf{w}^\top \mathbf{x}^{(i)})``
+  * ##### *toss a coin with bias* ``y^{(i)} \sim \texttt{Bernoulli}(\sigma^{(i)})``
+
+---
+""", html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/logistic_first.png' width = '180' /></center>")
+
+# ╔═╡ d982eb50-aaef-4c92-86ad-3092f14c02f6
+md"""
+
+## Probabilistic generative view of logistic regression (conti.)
+
+
+
+"""
+
+# ╔═╡ 36f20fc0-399c-4911-af1a-9001dc6deca3
+md"Add true function ``\sigma(x; \mathbf{w})``: $(@bind add_h CheckBox(default=false)),Add false function ``1-\sigma(x; \mathbf{w})``: $(@bind add_negh CheckBox(default=false))
+Add ``p(y^{(i)}|x^{(i)})``: $(@bind add_pyi CheckBox(default=false)),
+Add ``y^{(i)}\sim p(y^{(i)}|x^{(i)})``: $(@bind add_yi CheckBox(default=false))
+"
+
+# ╔═╡ 069ba91a-fbdd-4c99-803a-a90dc5f51fb4
+begin
+	Random.seed!(2345)
+	n_obs = 20
+	# the input x is fixed; non-random
+	xs = range(0.2, 19.5; length = n_obs)
+	# xs = sort(rand(n_obs) * 20)
+	true_w = [-11, 1]/2.25
+	# true_σ² = 0.05
+	ys = zeros(Bool, n_obs)
+	for (i, xⁱ) in enumerate(xs)
+		hⁱ = true_w' * [1, xⁱ]
+		# ys[i] = hⁱ + rand(Normal(0, sqrt(true_σ²)))
+		ys[i] = rand() < logistic(hⁱ)
+	end
+end
+
+# ╔═╡ bd94c28c-9603-420d-b69b-1ed3513fbef7
+md"
+Select ``x^{(i)}``: $(@bind add_i Slider(1:length(xs); show_value=true))
+"
+
+# ╔═╡ 59493076-d232-4024-9ca6-11a427f24a64
+TwoColumnWideLeft(let
+	gr()
+	plt = plot(xs, zeros(length(xs)), st=:scatter, framestyle=:origin, labels=L"x", color=:black, ms=5, markershape=:x, xlabel="x: weight of animal (kg)", ylim=[-0.2, 1.2],legend=:outerbottom, size=(450,350))
+	xis = xs
+	i = add_i
+	hxi =  logistic(true_w[1] + true_w[2]*xs[i])
+	
+	if add_h
+		plot!(-0.01:0.01:21, (x) -> logistic(true_w[1] + true_w[2]*x), lw=2, label="the bias: " * L"h(x)")
+		plot!([xs[i]], [hxi],st=:scatter, markershape=:circle, ms=4, markerstrokewidth=1, c=2, label="")
+
+		plot!([xs[i], xs[i]], [0,hxi], st=:path, label="", ls=:dash, c=2, lw=1.5, alpha=0.8)
+		if add_negh
+			plot!(-0.01:0.01:21, (x) -> 1-logistic(true_w[1] + true_w[2]*x), lw=2, ls=:dash, c=1, label="")
+			plot!([xs[i]], [1-hxi],st=:scatter, markershape=:circle, ms=4, markerstrokewidth=1, c=1, label="")
+
+			plot!([xs[i], xs[i]], [0,1-hxi], st=:path, label="", ls=:dot, c=1, lw=4, alpha=0.6)
+		end
+
+		plot!([xs[i]], [hxi],st=:scatter, markershape=:circle, ms=4, markerstrokewidth=1, c=2, label="")
+
+		plot!([xs[i], xs[i]], [0,hxi], st=:path, label="", ls=:dash, c=2, lw=1.5)
+	end
+
+	plot!([xs[i]], [0],st=:scatter, markershape=:x, ms=5, markerstrokewidth=5, c=:black, label="")
+
+
+	labels = [y == 0 ? text("cat", 10, "Computer Modern" , :blue) : text("dog", 10, "Computer Modern" , :red) for y in ys]
+	if add_yi
+		shapes = [:diamond, :circle]
+		scatter!(xis[1:i],ys[1:i], alpha=0.5, markershape = shapes[ys[i] + 1], label="observation: "*L"y^{(i)}\sim \texttt{Bern}(\sigma^{(i)})", c = ys[1:i] .+1, markersize=8; annotation = (xis[1:i],ys[1:i] .+0.1, labels[1:i]))
+	end
+
+	plt
+end, 
+	let 
+	gr()
+	xis = xs
+	i = add_i
+	if add_pyi
+		x = xis[i]
+		μi = dot(true_w, [1, x])
+		σ = logistic(μi)
+		# scatter!([x],[μi], markerstrokewidth =1, markershape = :diamond, c=:grey, label="signal: "*L"h(x)", markersize=3)
+		# plot!(ys_ .+x, xs_, c=:grey, label="", linewidth=2)
+		plot(["y = cat", "y = dog"], [1-σ, σ], c= [1,2], st=:bar, orientation=:v, size=(250,250), title="Bias: "*L"\sigma(x^{(i)})=%$(round(σ, digits=2))", ylim =(0, 1.02), label="", ylabel=L"P(y|x)" )
+	else
+		plot(size=(250,250))
+	end
+	
+end)
 
 # ╔═╡ d497e656-32ea-4704-bc9f-bcf645584720
 md"""
@@ -560,7 +740,17 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
 * ##### this is called the **likelihood function of $\mathbf{w}$**
 
 
-## 
+
+
+
+"""
+
+# ╔═╡ 27f927a7-6266-4cee-ac05-7e3291809288
+md"""
+
+## The likelihood function
+#### _a.k.a_ cross entropy loss
+
 
 #### The function can be rewritten as a one-liner 
 
@@ -568,6 +758,11 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
 $$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
 &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
+
+#### If we take log on both sides, we have 
+
+
+$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
 
 
@@ -579,18 +774,6 @@ md"""
 ## The likelihood function
 #### _a.k.a_ cross entropy loss
 
-$$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
-
-* ##### where $\sigma = \sigma(\mathbf{w}^\top\mathbf{x})$ is the bias of the Bernoulli
-
-
-* ##### this is called the **likelihood function of $\mathbf{w}$**
-
-
-* ##### it is a function of the unknown parameter $\mathbf{w}$
-  * ##### here both $\mathbf{x}, y$ are considered given and fixed (*i.e.* not variables)
-
-## The likelihood function and cross entropy
 
 #### The function can be rewritten as a one-liner 
 
@@ -599,42 +782,259 @@ $$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma&
 &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
 
-#### If we take log on both sides, we recover the (negative) cross entropy loss
+#### If we take log on both sides, we have
 
 
 $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
-
+#### which is the same as the (negative) cross entropy loss 
+* ##### (differ by a multiplier $-1$)
 
 $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
 
 
-#### therefore, maximising log-likelihood = minimising cross entropy loss
+"""
+
+# ╔═╡ b42adc59-4293-4acb-8925-9fda8b688249
+md"""
+
+## The likelihood function
+#### _a.k.a_ cross entropy loss
+
+
+#### The function can be rewritten as a one-liner 
+
+
+$$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
+&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+
+
+#### If we take log on both sides, we have
+
+
+$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
+
+#### which is the same as the (negative) cross entropy loss 
+* ##### (differ by a multiplier $-1$)
+
+$$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
+
+
+
+#### therefore, maximising log-likelihood ``\equiv`` minimising cross entropy
 
 $$\Large\max_{\mathbf{w}} \mathscr{L}(\mathbf{w}) = \min_\mathbf{w}\text{cross-entropy}(\mathbf{w})$$
 """
 
-# ╔═╡ 62e7f402-81cd-46d8-8f31-12f2a7a13a4c
+# ╔═╡ 0f9cb0bd-e5f2-44ea-9717-6b3c718221fb
 md"""
 
-## Bayesian logistic regression
+## Cross-entropy loss -- how & why ?
 
 
-#### Now learning becomes an ordinary Bayesian inference problem
 
-* #### which $\mathbf{w}$ is more probable ?
+#### Since $y^{(i)} \in \{0, 1\}$ are binary, the loss
+
+$$\Large
+  \boxed{\ell^{(i)}(\mathbf{w}) = - {y^{(i)}} \ln \sigma^{(i)}- (1- y^{(i)}) \ln (1-\sigma^{(i)})}$$
+
+#### Reduces to
+
+```math
+\Large
+\ell^{(i)}(\mathbf{w}) = \begin{cases}
+-\ln (1-\sigma^{(i)})& y^{(i)} = 0\\
+-\ln(\sigma^{(i)})& y^{(i)} = 1
+\end{cases}
+```
+"""
+
+# ╔═╡ eb52c3c4-c8f9-4890-bf4e-8c40a4ec34bb
+md"""
+
+## Cross-entropy loss -- how & why ?
+
+```math
+\Large\boxed{
+\ell^{(i)}(\mathbf{w}) = \begin{cases}
+-\ln (1-\sigma^{(i)})& y^{(i)} = 0\\
+-\ln(\sigma^{(i)})& y^{(i)} = 1
+\end{cases}}
+```
 
 
-$$\Large p(\mathbf{w}|\{{y}_1, \ldots, y_n\})$$
+
+### First of all, cross entropy loss is non-negative 
+
+* ##### since $\sigma \in(0,1)$, then $\Rightarrow \ln(\sigma) <0\; \Rightarrow -\ln(\sigma) >0$
+
+* ##### the same applies to the other case $-\ln(1-\sigma)$, since $1-\sigma \in (0,1)$		
 
 """
 
-# ╔═╡ e23376c2-7be5-4366-95d2-5f665999b218
-Foldable("Bayes' rule", md"""
+# ╔═╡ 17805452-01dd-41e2-84f5-c3868ab83a09
+md"Add ``-\ln(\sigma)`` $(@bind addceloss CheckBox())"
 
-$$\Large p(\mathbf{w}|\mathbf{y}) =  \frac{p(\mathbf{w}, \mathbf{y})}{p(\mathbf{y})} = \frac{p(\mathbf{w}, \mathbf{y})}{\int p(\mathbf{w}, \mathbf{y})d\mathbf{w}}$$
-""")
+# ╔═╡ 18763380-4f3c-4e66-8636-0d22d12aa144
+begin
+	plt = plot(0:0.001:1, x ->  log(x), lw= 2 , label=L"\ln(x)", legendfontsize=10, xlabel=L"\sigma", xlabelfontsize=20, ratio=0.1, ylim = [-5,5], xlim =[-0.01, 1], framestyle=:zerolines, legend= :outerbottom)
+	if addceloss
+		# plt = plot(x ->  log(x), xrange=[0,1] , lw= 1 , label=L"\ln(x)", legendfontsize=15, xlabel=L"\sigma", xlim =[0.5, 1], xlabelfontsize=20, ratio=0.1, ylim = [-5,5])
+		plot!(0:0.001:1, x -> - log(x),  lw=4, label="Cross entropy loss "*L"-\ln(x)", framestyle=:zerolines)
+	end
+
+	plt
+end
+
+# ╔═╡ 2ec4cca3-cbaa-4b57-bd38-00851440fa0a
+aside(tip(md"##### Why loss needs to be non-negative?
+
+* ##### or *lower bounded by 0*
+		  
+		  
+We typically minimise a loss function
+
+$$\min_\mathbf{w} \ell(\mathbf{w})$$
+
+* if the loss is not lower bounded, there is no solution, as the loss simply can be $-\infty$
+
+* lower bounded by ``0`` is mathematical convenience, the same as we require the total probability sum to ``1``
+"))
+
+# ╔═╡ dbe674a4-fcee-4b0e-baed-90b2b96799b9
+md"""
+## Cross-entropy loss -- how & why ?
+"""
+
+# ╔═╡ 43099fb7-df38-43dd-9441-82cf56764f7e
+TwoColumn(md"""
+
+\
+
+
+#### When ``y^{(i)} = 1``, 
+* ##### *i.e.* the true label is 1, the CE loss 
+
+
+```math
+\Large
+\begin{align}
+ \ell^{(i)}= - \ln (\sigma^{(i)})
+\end{align}
+```
+
+
+* ##### the prediction is correct,  the loss ``\rightarrow`` zero
+* ##### the prediction is wrong, the loss ``\rightarrow`` `inf`
+
+""", let
+	gr()
+	plot(0:0.005:1, (x) -> -log(x), lw=2, xlabel="Predicted prob. "* L"\sigma^{(i)}= p(y^{(i)}=1|x^{(i)})", ylabel="loss", label=L"-\ln \sigma^{(i)}", xlabelfontsize =12, title=L"y^{(i)}=1"* ": i.e. class label is 1", annotate = [(1, 0.9, text("perfect pred", "Computer Modern", :right, rotation = 270 ,:green, 12)), (0.11, 3.5, text("worst pred", :right, "Computer Modern", rotation = 270 ,:red, 12))], size=(350,350))
+
+
+	quiver!([1], [0.8], quiver=([1-1], [0-0.8]), c=:green, lw=3)
+	quiver!([0.07], [5], quiver=([0.0- 0.06], [5-5]), c=:red, lw=3)
+
+	quiver!([0.25], [2], quiver=([0.75- 0.25], [2-2]), c=:green, lw=3)
+	quiver!([0.75], [3], quiver=([0.25- 0.75], [3-3]), c=:red, lw=3)
+	annotate!(0.5, 2.1, text("better","Computer Modern", :green, :bottom))
+	annotate!(0.5, 3.1, text("worse","Computer Modern", :red, :bottom))
+end)
+
+# ╔═╡ 34e89842-aeba-4372-9536-1eb16bc1d737
+aside(tip(md"""
+
+Recall ``\sigma^{(i)} = p(y^{(i)}=1|\mathbf{x}^{(i)})``
+
+"""))
+
+# ╔═╡ 01198bb5-d8fd-4a07-83f9-eeff7fc7f7c2
+md"""
+
+##
+"""
+
+# ╔═╡ a2b3255f-6ff9-4205-81a8-78c01d3a231a
+TwoColumn(md"""
+
+\
+
+
+
+#### When ``y^{(i)} = 0`` (the true label is 0)
+
+
+```math
+\Large
+\begin{align}
+ \ell^{(i)}(\mathbf{w}) =- \ln (1-\sigma^{(i)})
+\end{align}
+```
+""", let
+	gr()
+	plot(0:0.005:1, (x) -> -log(1-x), lw=2, xlabel="Predicted prob. "* L"\sigma^{(i)}= p(y^{(i)}=1|x^{(i)})",  ylabel="loss", label=L"-\ln(1-\sigma^{(i)})", title=L"y^{(i)}=0"* ": the true class label is 0", size=(350,350))
+
+
+	# quiver!([0], [0.8], quiver=([1-1], [0-0.8]), c=:red, lw=3)
+	
+	# quiver!([0.07], [5], quiver=([0.0- 0.06], [5-5]), c=:green, lw=3)
+
+	quiver!([0.25], [2], quiver=([0.75- 0.25], [2-2]), c=:red, lw=3)
+	quiver!([0.75], [3], quiver=([0.25- 0.75], [3-3]), c=:green, lw=3)
+	annotate!(0.5, 2.1, text("worse", "Computer Modern", :red, :bottom))
+	annotate!(0.5, 3.1, text("better", "Computer Modern", :green, :bottom))
+end)
+
+# ╔═╡ c3e982cc-b405-4e3e-8fb3-74f6e7ac80c7
+md"""
+
+## Loss comparison
+
+#### An alternative but bad loss for **classification** is squared error loss
+
+$$\Large\ell_{\text{sse}}(\sigma) = \frac{1}{2}(y - \sigma)^2$$
+"""
+
+# ╔═╡ 65f21680-2d49-4c6f-a40e-8ed19594841a
+md"""
+
+## Loss comparison
+
+#### An alternative but bad loss for **classification** is squared error loss
+
+$$\Large\ell_{\text{sse}}(\sigma) = \frac{1}{2}(y - \sigma)^2$$
+
+
+* ##### the left hand side is not convex (a lot of flat areas where the gradient is zero)
+"""
+
+# ╔═╡ 4737afd5-83c1-41f8-90fb-25d0c2c91c27
+function logistic_mse_loss(w, X, y; agg=mean)
+	(0.5 * (y .- logistic.(X * w)).^2) |> agg
+end;
+
+# ╔═╡ ed6ec5d0-0aa1-42bf-bee2-32ff71046282
+begin
+	function logistic_loss(w, X, y; agg=mean)
+		σ = logistic.(X * w)
+		(-(xlogy.(y, σ) + xlog1py.(1 .-y, -σ))) |> agg
+	end
+end;
+
+# ╔═╡ 20052d1f-5da6-4165-adde-6cc69fe7b923
+md"""
+
+## Loss comparison
+
+#### An alternative but bad loss for **classification** is squared error loss
+
+$$\Large\ell_{\text{sse}}(\sigma) = \frac{1}{2}(y - \sigma)^2$$
+
+
+* ##### the left hand side is not convex (a lot of flat areas where the gradient is zero)
+* ##### gradient descent likely gets stuck
+"""
 
 # ╔═╡ 437a1ed4-8a0d-409d-9e8d-91d63db55028
 md"""
@@ -1152,29 +1552,29 @@ md"""
 """
 
 # ╔═╡ c2d268f7-7b92-40ef-a700-678750c80080
-# only works for uni-modal
-function find_hpdi(ps, α = 0.95)
-	cum_p, idx = findmax(ps)
-	l = idx - 1
-	u = idx + 1
-	while cum_p <= α
-		if l >= 1 
-			if u > length(ps) || ps[l] > ps[u]
-				cum_p += ps[l]
-				l = max(l - 1, 0) 
-				continue
-			end
-		end
+# # only works for uni-modal
+# function find_hpdi(ps, α = 0.95)
+# 	cum_p, idx = findmax(ps)
+# 	l = idx - 1
+# 	u = idx + 1
+# 	while cum_p <= α
+# 		if l >= 1 
+# 			if u > length(ps) || ps[l] > ps[u]
+# 				cum_p += ps[l]
+# 				l = max(l - 1, 0) 
+# 				continue
+# 			end
+# 		end
 		
-		if u <= length(ps) 
-			if l == 0 || ps[l] < ps[u]
-				cum_p += ps[u]
-				u = min(u + 1, length(ps))
-			end
-		end
-	end
-	return l+1, u-1, cum_p
-end;
+# 		if u <= length(ps) 
+# 			if l == 0 || ps[l] < ps[u]
+# 				cum_p += ps[u]
+# 				u = min(u + 1, length(ps))
+# 			end
+# 		end
+# 	end
+# 	return l+1, u-1, cum_p
+# end;
 
 # ╔═╡ 295da8be-bbd4-4437-a7b6-48b8b3e0bc60
 md"""
@@ -1275,6 +1675,40 @@ let
 	plt
 end
 
+# ╔═╡ 148d2ea9-d7ef-4a52-b3bf-feb6f8b1d021
+let
+	gr()
+	bias = 0.0;
+
+	# p0 = plot(-8:0.1:10, -10:0.1:10, (w1, w2) -> zeroone_loss([bias, w1, w2], D₂, targets_D₂; agg=mean), st=:surface, c=:jet,camera = (75, 35), colorbar=false, title="1/0 error loss")
+
+	p1 = plot(-8:0.1:10, -10:0.1:10, (w1, w2) -> logistic_mse_loss([bias, w1, w2], D₂, targets_D₂; agg=mean), st=:surface, c=:jet,camera = (75, 35), colorbar=false, title="Squared error loss")
+
+
+	
+	p2 = plot(-8:0.1:10, -10:0.1:10, (w1, w2) -> logistic_loss([bias, w1, w2], D₂, targets_D₂; agg=mean), st=:surface, c=:jet, camera = (75, 35),colorbar=false, title="Cross entropy loss")
+
+	plot( p1, p2, layout=(1,2), titlefontsize=12,zticks=true,  fillalpha=0.8)
+
+end
+
+# ╔═╡ 97144ebf-3a3f-40e4-89a2-cce396c25eb5
+let
+	gr()
+	bias = 0.0;
+
+	# p0 = plot(-8:0.1:10, -5:0.1:10, (w1, w2) -> zeroone_loss([bias, w1, w2], D₂, targets_D₂; agg=sum), st=:contourf, c=:jet, colorbar=false, title="1/0 error loss", ratio=1)
+
+	p1 = plot(-8:0.1:10, -5:0.1:10, (w1, w2) -> logistic_mse_loss([bias, w1, w2], D₂, targets_D₂; agg=sum), st=:contourf, c=:jet, colorbar=false, title="Squared error loss",  ratio=1)
+
+
+	
+	p2 = plot(-8:0.1:10, -5:0.1:10, (w1, w2) -> logistic_loss([bias, w1, w2], D₂, targets_D₂; agg=sum), st=:contourf, c=:jet, colorbar=false, title="Cross entropy loss",  ratio=1)
+
+	plot(p1, p2, layout=(1,2), size=(750,270), fillalpha=0.5, xlim =[-8, 10], ylim =(-5,10))
+
+end
+
 # ╔═╡ 27a5b8a7-a62d-4be5-aa38-87eac18ca883
 begin
 	D1 = [
@@ -1355,6 +1789,43 @@ let
 	plot(p1, p2)
 end
 
+# ╔═╡ 4f7a583e-beca-472e-8162-212bbde336db
+logistic_mse_loss_grad(x; bias= 0.0) = Zygote.withgradient((w) -> logistic_mse_loss([bias, w...], D₂, targets_D₂), x);
+
+# ╔═╡ 35629d07-c5a4-4e18-bb75-db1b7ce64bd9
+logistic_loss_grad(x; bias= 0.0) = Zygote.withgradient((w) -> logistic_loss([bias, w...], D₂, targets_D₂), x);
+
+# ╔═╡ 37d3b26d-51db-477c-a37c-ace44ba272b1
+begin
+
+	function produce_anim(w0; bias= 0, X= D₂, y =targets_D₂,  grad= logistic_mse_loss_grad, lossf = logistic_mse_loss, γ = 0.5, maxiters = 1000, xrange =-8:0.5:10, yrange=-5:0.5:10 )
+		gr()
+		ws = [w0]
+		loss = []
+		for i in 1:maxiters
+			li, gradw = grad(w0)
+			w0 -= γ * gradw[1]
+			push!(ws, w0)
+			push!(loss, li)
+		end
+		ws = hcat(ws...)
+		traces = ws
+		plt = plot(xrange, yrange, (w1, w2) -> lossf([bias, w1, w2], X, y; agg=sum), st=:contourf, c=:jet, colorbar=false,  ratio=1, alpha=0.8, xlim =(xrange |> extrema), ylim = (yrange |> extrema))
+		wt = traces[:, 1]
+		scatter!([wt[1]], [wt[2]], markershape=:xcross, label="start", markerstrokewidth=4, mc=3, markersize=6)
+		anim = @animate for t in 2:20:maxiters
+			plot!([traces[1, t]], [traces[2, t]], st=:scatter, color=1, label="", markersize=3)
+			plot!([wt[1], traces[1, t]], [wt[2], traces[2, t]], line = (:arrow, 0.8, :gray), label="", title="Iteration $(t); loss = $(round(loss[t];digits=2))")
+			wt = traces[1:2, t]
+		end 
+		return anim
+	end
+	# gif(anim, fps=5)
+end
+
+# ╔═╡ da3b81cd-6d8f-4278-9f0c-ce0031385da8
+TwoColumn(gif(produce_anim([-4.5, -4.5]); fps=10), gif(produce_anim([-4.5, -4.5]; grad= logistic_loss_grad, lossf = logistic_loss), fps=5))
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1370,6 +1841,20 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+
+[compat]
+Distributions = "~0.25.122"
+LaTeXStrings = "~1.4.0"
+Latexify = "~0.16.10"
+LogExpFunctions = "~0.3.29"
+Plots = "~1.41.1"
+PlutoTeachingTools = "~0.4.6"
+PlutoUI = "~0.7.73"
+SpecialFunctions = "~2.6.1"
+StatsBase = "~0.34.7"
+StatsPlots = "~0.15.8"
+Zygote = "~0.7.10"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1378,7 +1863,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "33083766b0daa603c567d6a2b772e521689a8f44"
+project_hash = "e26557bf01e3538b0707597a36b9ffde2d57b2f8"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1461,6 +1946,12 @@ git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.5+0"
 
+[[deps.ChainRules]]
+deps = ["Adapt", "ChainRulesCore", "Compat", "Distributed", "GPUArraysCore", "IrrationalConstants", "LinearAlgebra", "Random", "RealDot", "SparseArrays", "SparseInverseSubset", "Statistics", "StructArrays", "SuiteSparse"]
+git-tree-sha1 = "3b704353e517a957323bd3ac70fa7b669b5f48d4"
+uuid = "082447d4-558c-5d27-93f4-14fc19e9eca2"
+version = "1.72.6"
+
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
 git-tree-sha1 = "e4c6a16e77171a5f5e25e9646617ab1c276c5607"
@@ -1515,6 +2006,12 @@ git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
 
+[[deps.CommonSubexpressions]]
+deps = ["MacroTools"]
+git-tree-sha1 = "cda2cfaebb4be89c9084adaca7dd7333369715c5"
+uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
+version = "0.3.1"
+
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
 git-tree-sha1 = "9d8a54ce4b17aa5bdce0ea5c34bc5e7c340d16ad"
@@ -1535,6 +2032,21 @@ deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "d9d26935a0bcffc87d2613ce14c527c99fc543fd"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
+
+[[deps.ConstructionBase]]
+git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
+uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+version = "1.6.0"
+
+    [deps.ConstructionBase.extensions]
+    ConstructionBaseIntervalSetsExt = "IntervalSets"
+    ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
+    ConstructionBaseStaticArraysExt = "StaticArrays"
+
+    [deps.ConstructionBase.weakdeps]
+    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -1573,6 +2085,18 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
+
+[[deps.DiffResults]]
+deps = ["StaticArraysCore"]
+git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
+uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
+version = "1.1.0"
+
+[[deps.DiffRules]]
+deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
+git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
+uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
+version = "1.15.1"
 
 [[deps.Distances]]
 deps = ["LinearAlgebra", "Statistics", "StatsAPI"]
@@ -1691,6 +2215,16 @@ git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
 
+[[deps.ForwardDiff]]
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
+git-tree-sha1 = "ba6ce081425d0afb2bedd00d9884464f764a9225"
+uuid = "f6369f11-7733-5829-9624-2563aa707210"
+version = "1.2.2"
+weakdeps = ["StaticArrays"]
+
+    [deps.ForwardDiff.extensions]
+    ForwardDiffStaticArraysExt = "StaticArrays"
+
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
 git-tree-sha1 = "2c5512e11c791d1baed2049c5652441b28fc6a31"
@@ -1708,6 +2242,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jl
 git-tree-sha1 = "fcb0584ff34e25155876418979d4c8971243bb89"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.4.0+2"
+
+[[deps.GPUArraysCore]]
+deps = ["Adapt"]
+git-tree-sha1 = "83cf05ab16a73219e5f6bd1bdfa9848fa24ac627"
+uuid = "46192b85-c4d5-4398-a991-12ede77f4527"
+version = "0.2.0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
@@ -1785,6 +2325,12 @@ deps = ["Logging", "Random"]
 git-tree-sha1 = "0ee181ec08df7d7c911901ea38baf16f755114dc"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "1.0.0"
+
+[[deps.IRTools]]
+deps = ["InteractiveUtils", "MacroTools"]
+git-tree-sha1 = "57e9ce6cf68d0abf5cb6b3b4abf9bedf05c939c0"
+uuid = "7869d1d1-7146-5819-86e3-90919afe41df"
+version = "0.4.15"
 
 [[deps.IntelOpenMP_jll]]
 deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl"]
@@ -2300,6 +2846,12 @@ weakdeps = ["FixedPointNumbers"]
     [deps.Ratios.extensions]
     RatiosFixedPointNumbersExt = "FixedPointNumbers"
 
+[[deps.RealDot]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "9f0a1b71baaf7650f4fa8a1d168c7fb6ee41f0c9"
+uuid = "c1ae055f-0cd5-4b69-90a6-9a35b1a98df9"
+version = "0.1.0"
+
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
 git-tree-sha1 = "5c3d09cc4f31f5fc6af001c250bf1278733100ff"
@@ -2392,6 +2944,12 @@ deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.12.0"
 
+[[deps.SparseInverseSubset]]
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
+git-tree-sha1 = "52962839426b75b3021296f7df242e40ecfc0852"
+uuid = "dc90abb0-5640-4711-901d-7e5b23a2fada"
+version = "0.1.2"
+
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
 git-tree-sha1 = "f2685b435df2613e25fc10ad8c26dddb8640f547"
@@ -2465,6 +3023,27 @@ deps = ["AbstractFFTs", "Clustering", "DataStructures", "Distributions", "Interp
 git-tree-sha1 = "88cf3587711d9ad0a55722d339a013c4c56c5bbc"
 uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
 version = "0.15.8"
+
+[[deps.StructArrays]]
+deps = ["ConstructionBase", "DataAPI", "Tables"]
+git-tree-sha1 = "a2c37d815bf00575332b7bd0389f771cb7987214"
+uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+version = "0.7.2"
+
+    [deps.StructArrays.extensions]
+    StructArraysAdaptExt = "Adapt"
+    StructArraysGPUArraysCoreExt = ["GPUArraysCore", "KernelAbstractions"]
+    StructArraysLinearAlgebraExt = "LinearAlgebra"
+    StructArraysSparseArraysExt = "SparseArrays"
+    StructArraysStaticArraysExt = "StaticArrays"
+
+    [deps.StructArrays.weakdeps]
+    Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
+    KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
@@ -2732,6 +3311,30 @@ git-tree-sha1 = "446b23e73536f84e8037f5dce465e92275f6a308"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
+[[deps.Zygote]]
+deps = ["AbstractFFTs", "ChainRules", "ChainRulesCore", "DiffRules", "Distributed", "FillArrays", "ForwardDiff", "GPUArraysCore", "IRTools", "InteractiveUtils", "LinearAlgebra", "LogExpFunctions", "MacroTools", "NaNMath", "PrecompileTools", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "ZygoteRules"]
+git-tree-sha1 = "a29cbf3968d36022198bcc6f23fdfd70f7caf737"
+uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
+version = "0.7.10"
+
+    [deps.Zygote.extensions]
+    ZygoteAtomExt = "Atom"
+    ZygoteColorsExt = "Colors"
+    ZygoteDistancesExt = "Distances"
+    ZygoteTrackerExt = "Tracker"
+
+    [deps.Zygote.weakdeps]
+    Atom = "c52e3926-4ff0-5f6e-af25-54175e0327b1"
+    Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+    Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
+
+[[deps.ZygoteRules]]
+deps = ["ChainRulesCore", "MacroTools"]
+git-tree-sha1 = "434b3de333c75fc446aa0d19fc394edafd07ab08"
+uuid = "700de1a5-db45-46bc-99cf-38207098b444"
+version = "0.2.7"
+
 [[deps.eudev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
@@ -2887,12 +3490,41 @@ version = "1.9.2+0"
 # ╟─9a8844f2-a649-4aaf-87c8-649f6c8af2df
 # ╟─b504f9a0-67a0-4039-b3be-767b63e65b09
 # ╟─7bfaa11b-636d-4ed0-98f0-36ffdf3a3c2f
-# ╟─d497e656-32ea-4704-bc9f-bcf645584720
-# ╟─84cba9ec-6f46-4b45-b604-0efe15408fb8
-# ╟─e24d9d3e-b642-405c-a52e-227538e63797
 # ╟─62e7f402-81cd-46d8-8f31-12f2a7a13a4c
 # ╟─e23376c2-7be5-4366-95d2-5f665999b218
 # ╟─44ca90d5-47ff-47ec-a0af-46282c47afef
+# ╟─925077d1-448b-43a1-9734-1272ffe78790
+# ╟─2b799a1d-e701-4051-93dd-536d25e60b6b
+# ╟─84128906-ff8c-4d47-a4d1-4b1c5beccc96
+# ╟─403cb537-e814-4b06-8283-150a7dc75de7
+# ╟─d982eb50-aaef-4c92-86ad-3092f14c02f6
+# ╟─36f20fc0-399c-4911-af1a-9001dc6deca3
+# ╟─bd94c28c-9603-420d-b69b-1ed3513fbef7
+# ╟─59493076-d232-4024-9ca6-11a427f24a64
+# ╟─069ba91a-fbdd-4c99-803a-a90dc5f51fb4
+# ╟─d497e656-32ea-4704-bc9f-bcf645584720
+# ╟─84cba9ec-6f46-4b45-b604-0efe15408fb8
+# ╟─27f927a7-6266-4cee-ac05-7e3291809288
+# ╟─e24d9d3e-b642-405c-a52e-227538e63797
+# ╟─b42adc59-4293-4acb-8925-9fda8b688249
+# ╟─0f9cb0bd-e5f2-44ea-9717-6b3c718221fb
+# ╟─eb52c3c4-c8f9-4890-bf4e-8c40a4ec34bb
+# ╟─17805452-01dd-41e2-84f5-c3868ab83a09
+# ╟─18763380-4f3c-4e66-8636-0d22d12aa144
+# ╟─2ec4cca3-cbaa-4b57-bd38-00851440fa0a
+# ╟─dbe674a4-fcee-4b0e-baed-90b2b96799b9
+# ╟─43099fb7-df38-43dd-9441-82cf56764f7e
+# ╟─34e89842-aeba-4372-9536-1eb16bc1d737
+# ╟─01198bb5-d8fd-4a07-83f9-eeff7fc7f7c2
+# ╟─a2b3255f-6ff9-4205-81a8-78c01d3a231a
+# ╟─c3e982cc-b405-4e3e-8fb3-74f6e7ac80c7
+# ╟─148d2ea9-d7ef-4a52-b3bf-feb6f8b1d021
+# ╟─65f21680-2d49-4c6f-a40e-8ed19594841a
+# ╟─97144ebf-3a3f-40e4-89a2-cce396c25eb5
+# ╟─4737afd5-83c1-41f8-90fb-25d0c2c91c27
+# ╟─ed6ec5d0-0aa1-42bf-bee2-32ff71046282
+# ╟─20052d1f-5da6-4165-adde-6cc69fe7b923
+# ╟─da3b81cd-6d8f-4278-9f0c-ce0031385da8
 # ╟─437a1ed4-8a0d-409d-9e8d-91d63db55028
 # ╟─cbf527e2-7177-412f-b8c5-0c78a958f782
 # ╟─8667f083-f2e6-4b1e-b3a8-52a373f37b5c
@@ -2938,6 +3570,10 @@ version = "1.9.2+0"
 # ╟─a729e2fe-c27a-4cfd-b126-c08c36a4d5d9
 # ╟─27a5b8a7-a62d-4be5-aa38-87eac18ca883
 # ╟─ededbf8b-672c-485d-a938-521c82a243ee
-# ╠═fc72d5ce-fb2c-413d-9434-cfc93e771775
+# ╟─fc72d5ce-fb2c-413d-9434-cfc93e771775
+# ╟─240783c5-3acc-4cdb-ad82-d81b096b203b
+# ╟─4f7a583e-beca-472e-8162-212bbde336db
+# ╟─35629d07-c5a4-4e18-bb75-db1b7ce64bd9
+# ╟─37d3b26d-51db-477c-a37c-ace44ba272b1
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
