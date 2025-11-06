@@ -34,6 +34,7 @@ begin
 	using Distributions
 	using SpecialFunctions
 	using LinearAlgebra
+	using HypertextLiteral
 	# using Dagitty
 end
 
@@ -42,6 +43,27 @@ using Zygote
 
 # ╔═╡ eeb9e3c7-974d-4f30-b960-f31b952cb79d
 TableOfContents()
+
+# ╔═╡ 5e865bcc-c339-48eb-8f65-c52808b9b362
+figure_url = "https://leo.host.cs.st-andrews.ac.uk/figs/";
+
+# ╔═╡ c7d56d5f-a79a-4c9d-8c60-169ea143142b
+function show_img(path_to_file; center=true, h = 400, w = nothing)
+	if center
+		if isnothing(w)
+			@htl """<center><img src= $(figure_url * path_to_file) height = '$(h)' /></center>"""
+		else
+			@htl """<center><img src= $(figure_url * path_to_file) width = '$(w)' /></center>"""
+		end
+
+	else
+		if isnothing(w)
+			@htl """<img src= $(figure_url * path_to_file) height = '$(h)' />"""
+		else
+			@htl """<img src= $(figure_url * path_to_file) width = '$(w)' />"""
+		end
+	end
+end;
 
 # ╔═╡ 4e1ddb4c-eea9-4bdf-8183-8addc3c38891
 ChooseDisplayMode()
@@ -439,19 +461,23 @@ md"""
 
 """
 
-# ╔═╡ 798303a4-b09b-4a83-8d8e-1e3aeb5e6760
+# ╔═╡ dac8feac-a469-4fac-9a32-7cbc44349278
 md"""
 
-## Logistic regression as infernce 
+## Recap: logistic regression -- as a graph
 
 
+```math
+\Large 
+\sigma(\mathbf{x}) = \frac{1}{1+ e^{- \mathbf{w}^\top\mathbf{x}}}
+``` 
 
-#### Which decision boundary is more probable ?
-
-
-$$\Large P(\text{decision bounary} |\{{y}_1, \ldots, y_n\})$$
-
+* ##### ``z = \mathbf{w}^\top \mathbf{x}`` is called the *logit* value
 """
+
+# ╔═╡ d9cb4740-78d6-43a3-b48c-ce2a864a2855
+html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/CS3105/logistic_reg_neuron.png
+' width = '400' /></center>"
 
 # ╔═╡ 97bd4d20-3410-4768-9045-ac897ab74bdb
 md"""
@@ -466,11 +492,188 @@ md"""
 
 """
 
-# ╔═╡ c271c913-4a8b-43d5-bab9-8dc70402d5f8
-wv_ = [1, 1] * 1;
+# ╔═╡ b00ae860-c105-4512-a469-928c5649e760
+ww = [1, 1]
 
 # ╔═╡ 5dda1c13-96b6-4ee1-a029-d0773d475769
-md"##### _E.g._ with ``\mathbf{w}=``$(latexify_md(wv_)), and ``w_0 =0``"
+md"##### _E.g._ with ``\mathbf{w}=``$(latexify_md(ww)), and ``w_0 =0``"
+
+# ╔═╡ 9198eafd-1059-4f49-9cf4-6c303ca7d35b
+md"Add lines: $(@bind add_p_lines CheckBox(default=false)), show transformed: $(@bind show_sigmoid CheckBox(false))"
+
+# ╔═╡ 7fed82b6-e77a-4fb1-87bb-0843ec6d5dfa
+TwoColumn(
+	let
+	plotly()
+	w₀ = 0
+	f(x1, x2) = dot(ww, [x1, x2]) + w₀
+	x_center = [0, 0]
+	plt = plot(-15:2:15, -15:2:15, (x1, x2) -> f(x1, x2), st=:surface, xlabel="x₁", ylabel="x₂", zlabel="f",  alpha=0.8, framestyle=:zerolines, c=:coolwarm, colorbar=false, camera=(-5, 30), size=(350,400))
+
+	# min_z, max_z = extrema([f(x1, x2) for x1 in -15:2:15 for x2 in -15:2:15])
+	if add_p_lines
+		x00= [x_center..., f(x_center...)]
+		wv = [ww..., ww'*ww]
+		ts = -14:2:14
+		# xyzs = x00 .+ wv .* ts'
+		vv = ww[2] == 0 ? [0, 1] : [1, -ww[1]/ww[2]]
+		vv = vv/norm(vv)
+		vvs = x00[1:2] .+ vv * range(-15, 15, 15)'
+		vvs =[vvs; f(x_center...) .+ zeros(size(vvs)[2])']
+
+		for v0 in eachcol(vvs)
+			xyzs = v0 .+ wv .* ts'
+			path3d!(xyzs[1,:], xyzs[2,:], xyzs[3,:], lw=3,label="")
+		end
+	end
+	
+
+
+	plt
+end
+	
+	, 
+let
+	if show_sigmoid 
+		plotly()
+		w₀ = 0
+		f(x1, x2) = dot(ww, [x1, x2]) + w₀
+		x_center = [0, 0]
+		plt = plot(-15:0.2:15, -15:0.2:15, (x1, x2) -> logistic(f(x1, x2)), st=:surface, xlabel="x₁", ylabel="x₂", zlabel="f",  alpha=0.8, framestyle=:zerolines, c=:coolwarm, colorbar=false, camera=(-5, 30), size=(350,400))
+		if add_p_lines
+			x00 = [x_center..., f(x_center...)]
+			wv = [ww..., ww'*ww]
+			ts = -14:0.2:14
+			vv = ww[2] == 0 ? [0, 1] : [1, -ww[1]/ww[2]]
+			vv = vv/norm(vv)
+			vvs = x00[1:2] .+ vv * range(-15, 15, 15)'
+			vvs =[vvs; f(x_center...) .+ zeros(size(vvs)[2])']
+	
+			for v0 in eachcol(vvs)
+				xyzs = v0 .+ wv .* ts'
+				newzs = [logistic(f(xy[1:2]...)) for xy in eachcol(xyzs)]
+				path3d!(xyzs[1,:], xyzs[2,:], newzs, lw=3,label="")
+			end
+		end
+		plt
+	else
+		md"""
+
+		"""
+	end
+end
+
+)
+
+# ╔═╡ 892e526c-31bb-40d4-b865-3cc47a675b10
+md"""
+
+## Recap: learning of logistic regression
+#### Cross entropy loss
+
+
+```math
+\Large
+\hat{\mathbf{w}} \leftarrow \arg\min_{\mathbf{w}}\; \text{cross-entropy}(\mathbf{w})
+```
+
+#### where
+
+$\large\text{cross-entropy}(\mathbf{w})=\sum_{i=1}^n\underbrace{-{y^{(i)}} \ln \sigma^{(i)}- (1- y^{(i)}) \ln (1-\sigma^{(i)})}_{\text{Cross entropy loss for the }i\text{-th observation}}$
+
+#### and $\sigma^{(i)} = \sigma(\mathbf{w}^{\top} \mathbf{x}^{(i)})$ is the predicted probability
+
+
+## Recap: learning of logistic regression
+#### Gradient descent
+
+\
+
+
+#### The gradient is 
+
+
+$$\large\nabla \ell(\mathbf{w}) = -\sum_{i=1}^n \underbrace{(y^{(i)} - \sigma^{(i)})}_{\text{pred. error for }i} \cdot \mathbf{x}^{(i)}$$
+
+-----
+
+* ##### random guess ``\large\mathbf{w}_0``
+
+
+
+* ##### while ``\|\nabla \ell(\mathbf{w}_{t-1})\|_2 > \texttt{tol}``
+  * ###### ``\large\mathbf{w}_t \leftarrow \mathbf{w}_{t-1} - \gamma \nabla \ell(\mathbf{w}_{t-1})``
+-----
+
+
+
+"""
+
+# ╔═╡ eaf19ee8-d73f-4c82-a548-5c26e0b357e0
+md"""
+
+## Recap: Learing algorithm -- Implementation
+
+
+"""
+
+# ╔═╡ 5093efef-7022-48c0-a20e-fc17b9fcd674
+md"""
+
+
+#### Implementation in Python
+
+
+
+```python
+def logistic(x):    
+    return 1/ (1 + np.exp(-x))
+```
+
+
+```python
+for i in range(max_iters):
+	yhats = logistic(Xs@w) # predictions (btw 0 and 1)
+    grad =  Xs.T@(yhats - ys) # the gradient in matrix vector multiplication form
+    w = w - gamma * grad  # gradient descent
+```
+
+
+"""
+
+# ╔═╡ 9b388d1f-9d85-4801-afcb-ea41d2d7dbfd
+TwoColumn(show_img("logisticgif1.gif", w=450), show_img("logisticgif2.gif", w=450))
+
+# ╔═╡ 06623d0e-20cb-4d31-9dce-3db5be88873b
+# begin
+# 	XX = D₂[:, 2:3]
+
+# 	yy = targets_D₂
+# end
+
+# ╔═╡ 7146fc63-a50d-4551-8eb9-342ad9c5ea69
+# begin
+# 	## randomly guess w0
+# 	w0 = randn(2) / 2
+# 	logits = XX * ww
+# 	yhats = logistic.(logits)
+
+# 	grad = XX' * (yhats - yy)
+# end
+
+# ╔═╡ 798303a4-b09b-4a83-8d8e-1e3aeb5e6760
+md"""
+
+## Logistic regression as infernce 
+
+
+
+#### Which decision boundary is more probable ?
+
+
+$$\Large P(\text{decision bounary} |\{{y}_1, \ldots, y_n\})$$
+
+"""
 
 # ╔═╡ 618c3f55-b5e4-4dab-942f-b7c7c23824c0
 md"""
@@ -707,11 +910,10 @@ end,
 	
 end)
 
-# ╔═╡ d497e656-32ea-4704-bc9f-bcf645584720
+# ╔═╡ bd855cc9-f642-4cf5-87c9-d9c02e22ede8
 md"""
 
 ## The likelihood function
-#### _a.k.a_ cross entropy loss
 
 $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
 
@@ -726,11 +928,10 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
 
 """
 
-# ╔═╡ 84cba9ec-6f46-4b45-b604-0efe15408fb8
+# ╔═╡ 3dc762c6-c3b6-4478-b587-96bfe93ce671
 md"""
 
 ## The likelihood function
-#### _a.k.a_ cross entropy loss
 
 $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
 
@@ -740,17 +941,7 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
 * ##### this is called the **likelihood function of $\mathbf{w}$**
 
 
-
-
-
-"""
-
-# ╔═╡ 27f927a7-6266-4cee-ac05-7e3291809288
-md"""
-
-## The likelihood function
-#### _a.k.a_ cross entropy loss
-
+## 
 
 #### The function can be rewritten as a one-liner 
 
@@ -759,7 +950,54 @@ $$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma&
 &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
 
-#### If we take log on both sides, we have 
+
+
+"""
+
+# ╔═╡ f14e5683-6bf2-4c4e-837c-72519ac487e4
+aside(tip(md"""
+Recall $x^0 =1$ for all $x$ and $x^1 = x$
+
+Therefore, when $y=1$, we have 
+		  
+$\begin{align}\ell(\cdot)&=\sigma^1 (1-\sigma)^{1-1} \\
+&=\sigma \cdot (1-\sigma)^0 \\ &=\sigma \cdot 1 \\ &= \sigma\end{align}$
+
+as expected; The other case works follow the same logic.
+"""))
+
+# ╔═╡ e8c2ec7c-50e3-45fb-bf4c-d927d80333f6
+md"""
+
+## The likelihood function
+
+$$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
+
+* ##### where $\sigma = \sigma(\mathbf{w}^\top\mathbf{x})$ is the bias of the Bernoulli
+
+
+* ##### this is called the **likelihood function of $\mathbf{w}$**
+
+
+* ##### it is a function of the unknown parameter $\mathbf{w}$
+  * ##### here both $\mathbf{x}, y$ are considered given and fixed (*i.e.* not variables)
+
+
+"""
+
+# ╔═╡ 4e1bc7a3-a927-447d-8580-4696a26b24c6
+md"""
+
+## The likelihood function
+
+#### The function can be rewritten as a one-liner 
+
+
+$$\Large\begin{align}\ell(\mathbf{w})
+&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+
+
+#### If we take log on both sides,we have
 
 
 $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
@@ -768,63 +1006,98 @@ $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
 """
 
-# ╔═╡ e24d9d3e-b642-405c-a52e-227538e63797
+# ╔═╡ 3c20084e-c518-4584-b8fc-8cb9f629bdfd
+aside(tip(md"""
+Recall log identities
+		  
+$\ln x^y = y\ln x$
+
+$\ln xy = \ln x + \ln y$
+"""		  
+))
+
+# ╔═╡ 1b1c4e27-2c45-435d-b8b0-186b3937c00f
 md"""
 
-## The likelihood function
-#### _a.k.a_ cross entropy loss
-
+## The likelihood function and cross entropy
 
 #### The function can be rewritten as a one-liner 
 
 
-$$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
+$$\Large\begin{align}\ell(\mathbf{w})
 &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
 
-#### If we take log on both sides, we have
+#### If we take log on both sides, we recover the (negative) cross entropy loss
 
 
 $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
-#### which is the same as the (negative) cross entropy loss 
-* ##### (differ by a multiplier $-1$)
+#### This looks awfully like the cross entropy loss
 
 $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
 
-
 """
 
-# ╔═╡ b42adc59-4293-4acb-8925-9fda8b688249
+# ╔═╡ 8005ca99-ad4a-48e9-8607-f809a1cbde2e
 md"""
 
-## The likelihood function
-#### _a.k.a_ cross entropy loss
-
+## The likelihood function and cross entropy
 
 #### The function can be rewritten as a one-liner 
 
 
-$$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
+$$\Large\begin{align}\ell(\mathbf{w})
 &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
 
-#### If we take log on both sides, we have
+#### If we take log on both sides, we recover the (negative) cross entropy loss
 
 
 $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
-#### which is the same as the (negative) cross entropy loss 
-* ##### (differ by a multiplier $-1$)
+#### This looks awfully like the cross entropy loss
 
 $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
 
+#### Indeed, 
 
-#### therefore, maximising log-likelihood ``\equiv`` minimising cross entropy
+$$\Large \text{cross-entropy}(\mathbf{w}) = - \mathscr{L}(\mathbf{w})$$
 
-$$\Large\max_{\mathbf{w}} \mathscr{L}(\mathbf{w}) = \min_\mathbf{w}\text{cross-entropy}(\mathbf{w})$$
+"""
+
+# ╔═╡ aab57b95-a08b-408a-95b5-bedf54889a21
+md"""
+## The likelihood function and cross entropy
+
+#### The function can be rewritten as a one-liner 
+
+
+$$\Large\begin{align}\ell(\mathbf{w})
+&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+
+
+#### If we take log on both sides, we recover the (negative) cross entropy loss
+
+
+$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
+
+#### This looks awfully like the cross entropy loss
+
+$$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
+
+
+#### Indeed, 
+
+$$\Large \text{cross-entropy}(\mathbf{w}) = - \mathscr{L}(\mathbf{w})$$
+
+
+
+#### Minimising cross entropy loss ≡ maximising log-likelihood 
+
+$$\Large\min_\mathbf{w}\text{cross-entropy}(\mathbf{w}) \Longleftrightarrow \max_{\mathbf{w}} \mathscr{L}(\mathbf{w})$$
 """
 
 # ╔═╡ 0f9cb0bd-e5f2-44ea-9717-6b3c718221fb
@@ -834,12 +1107,12 @@ md"""
 
 
 
-#### Since $y^{(i)} \in \{0, 1\}$ are binary, the loss
+#### Since $y^{(i)} \in \{0, 1\}$ is binary, the loss
 
 $$\Large
   \boxed{\ell^{(i)}(\mathbf{w}) = - {y^{(i)}} \ln \sigma^{(i)}- (1- y^{(i)}) \ln (1-\sigma^{(i)})}$$
 
-#### Reduces to
+#### reduces to
 
 ```math
 \Large
@@ -1764,31 +2037,6 @@ function arrow3d!(x, y, z,  u, v, w; as=0.1, lc=:black, la=1, lw=0.4, scale=:ide
     end
 end
 
-# ╔═╡ 49b5b9b9-a8c7-411d-ad02-e8fa85b07b4f
-let
-	plotly()
-	w₀ = 0
-	w₁, w₂ = wv_[1], wv_[2]
-	p1 = plot(-5:0.5:5, -5:0.5:5, (x, y) -> w₀+ w₁* x + w₂ * y, st=:surface, c=:jet, colorbar=false, alpha=0.8, framestyle=:zerolines, xlabel="x₁", ylabel="x₂", title="z(x) = wᵀ x")
-
-	plot!(-5:0.5:5, -5:0.5:5, (x, y) -> 0, st=:surface, c=:gray, alpha=0.5)
-	arrow3d!([0], [0], [0], [w₁], [w₂], [0]; as=0.5, lc=2, la=1, lw=2, scale=:identity)
-	x0s = -5:0.5:5
-	if w₂ ==0
-		x0s = range(-w₀/w₁-eps(1.0) , -w₀/w₁+eps(1.0), 20)
-		y0s = range(-5, 5, 20)
-	else
-		y0s = (- w₁ * x0s .- w₀) ./ w₂
-	end
-	plot!(x0s, y0s, zeros(length(x0s)), lc=:gray, lw=4, label="")
-	
-	p2 = plot(-5:0.5:5, -5:0.5:5, (x, y) -> logistic(w₀+ w₁* x + w₂ * y), st=:surface, c=:jet, colorbar=false, alpha=0.8, zlim=[-0.1, 1.1],  xlabel="x₁", ylabel="x₂", title="σ(wᵀx)", framestyle=:zerolines)
-	plot!(-5:0.5:5, -5:0.5:5, (x, y) -> 0.5, st=:surface, c=:gray, alpha=0.75)
-	arrow3d!([0], [0], [0], [w₁], [w₂], [0]; as=0.5, lc=2, la=1, lw=2, scale=:identity)
-	plot!(x0s, y0s, .5 * ones(length(x0s)), lc=:gray, lw=4, label="")
-	plot(p1, p2)
-end
-
 # ╔═╡ 4f7a583e-beca-472e-8162-212bbde336db
 logistic_mse_loss_grad(x; bias= 0.0) = Zygote.withgradient((w) -> logistic_mse_loss([bias, w...], D₂, targets_D₂), x);
 
@@ -1830,6 +2078,7 @@ TwoColumn(gif(produce_anim([-4.5, -4.5]); fps=10), gif(produce_anim([-4.5, -4.5]
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -1845,6 +2094,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 Distributions = "~0.25.122"
+HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Latexify = "~0.16.10"
 LogExpFunctions = "~0.3.29"
@@ -1863,7 +2113,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "e26557bf01e3538b0707597a36b9ffde2d57b2f8"
+project_hash = "021e09b8c98379dd914359d38e1f61a503ee7206"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -3444,6 +3694,8 @@ version = "1.9.2+0"
 # ╔═╡ Cell order:
 # ╟─2dd6ec04-37fd-11ed-147f-5bc50a90e4bb
 # ╟─eeb9e3c7-974d-4f30-b960-f31b952cb79d
+# ╟─c7d56d5f-a79a-4c9d-8c60-169ea143142b
+# ╟─5e865bcc-c339-48eb-8f65-c52808b9b362
 # ╟─4e1ddb4c-eea9-4bdf-8183-8addc3c38891
 # ╟─92072c1d-9ee7-4d99-826e-146427d0d85d
 # ╟─0120c238-e093-41e2-b2e0-53383a1e4880
@@ -3477,12 +3729,21 @@ version = "1.9.2+0"
 # ╟─03c37940-c5d7-4b9d-85bc-2427bb89c5e5
 # ╟─4052bc2a-1cc7-406d-b4fb-6bbc0f3ff2fe
 # ╟─e7438b3e-9815-4954-86e1-020222a78a12
-# ╟─798303a4-b09b-4a83-8d8e-1e3aeb5e6760
-# ╟─98500504-f082-40f9-8774-8a2e46607469
+# ╟─dac8feac-a469-4fac-9a32-7cbc44349278
+# ╟─d9cb4740-78d6-43a3-b48c-ce2a864a2855
 # ╟─97bd4d20-3410-4768-9045-ac897ab74bdb
 # ╟─5dda1c13-96b6-4ee1-a029-d0773d475769
-# ╟─c271c913-4a8b-43d5-bab9-8dc70402d5f8
-# ╟─49b5b9b9-a8c7-411d-ad02-e8fa85b07b4f
+# ╠═b00ae860-c105-4512-a469-928c5649e760
+# ╟─9198eafd-1059-4f49-9cf4-6c303ca7d35b
+# ╟─7fed82b6-e77a-4fb1-87bb-0843ec6d5dfa
+# ╟─892e526c-31bb-40d4-b865-3cc47a675b10
+# ╟─eaf19ee8-d73f-4c82-a548-5c26e0b357e0
+# ╟─5093efef-7022-48c0-a20e-fc17b9fcd674
+# ╟─9b388d1f-9d85-4801-afcb-ea41d2d7dbfd
+# ╟─06623d0e-20cb-4d31-9dce-3db5be88873b
+# ╟─7146fc63-a50d-4551-8eb9-342ad9c5ea69
+# ╟─798303a4-b09b-4a83-8d8e-1e3aeb5e6760
+# ╟─98500504-f082-40f9-8774-8a2e46607469
 # ╟─618c3f55-b5e4-4dab-942f-b7c7c23824c0
 # ╟─efa88df0-5447-4ff0-9861-593b8d4ddad5
 # ╟─06f0bf3d-0585-4f1d-b290-1bccb5be4db2
@@ -3502,11 +3763,15 @@ version = "1.9.2+0"
 # ╟─bd94c28c-9603-420d-b69b-1ed3513fbef7
 # ╟─59493076-d232-4024-9ca6-11a427f24a64
 # ╟─069ba91a-fbdd-4c99-803a-a90dc5f51fb4
-# ╟─d497e656-32ea-4704-bc9f-bcf645584720
-# ╟─84cba9ec-6f46-4b45-b604-0efe15408fb8
-# ╟─27f927a7-6266-4cee-ac05-7e3291809288
-# ╟─e24d9d3e-b642-405c-a52e-227538e63797
-# ╟─b42adc59-4293-4acb-8925-9fda8b688249
+# ╟─bd855cc9-f642-4cf5-87c9-d9c02e22ede8
+# ╟─3dc762c6-c3b6-4478-b587-96bfe93ce671
+# ╟─f14e5683-6bf2-4c4e-837c-72519ac487e4
+# ╟─e8c2ec7c-50e3-45fb-bf4c-d927d80333f6
+# ╟─4e1bc7a3-a927-447d-8580-4696a26b24c6
+# ╟─3c20084e-c518-4584-b8fc-8cb9f629bdfd
+# ╟─1b1c4e27-2c45-435d-b8b0-186b3937c00f
+# ╟─8005ca99-ad4a-48e9-8607-f809a1cbde2e
+# ╟─aab57b95-a08b-408a-95b5-bedf54889a21
 # ╟─0f9cb0bd-e5f2-44ea-9717-6b3c718221fb
 # ╟─eb52c3c4-c8f9-4890-bf4e-8c40a4ec34bb
 # ╟─17805452-01dd-41e2-84f5-c3868ab83a09
