@@ -461,6 +461,81 @@ md"""
 
 """
 
+# ╔═╡ 0b90d3c9-9a9d-4482-88fe-6be4b1202edd
+md"""
+
+## Recap: logistic function
+
+
+
+```math
+\Large 
+\sigma(z) = \frac{1}{1+ e^{- z}}
+``` 
+
+
+* #### ``z \rightarrow \infty``, ``\sigma(z) \rightarrow ?``
+
+* #### ``z \rightarrow -\infty``, ``\sigma(z) \rightarrow ?``
+
+"""
+
+# ╔═╡ 666a36f7-047c-4fd3-b27a-13991803b868
+Foldable("", md"""
+
+
+* #### ``z \rightarrow \infty``, ``\sigma(z) \rightarrow 1``
+
+* #### ``z \rightarrow -\infty``, ``\sigma(z) \rightarrow 0``		 		 
+""")
+
+# ╔═╡ e0d7e6fc-43c7-4652-b577-d3c43549d98b
+begin
+	# using LogExpFunctions
+	gr()
+	# plot(x -> x, framestyle = :origin, lw=2, label=L"f(z) =z", legendfontsize =10, ratio=1, xlim =[-5,5], ylim = [-3,3])
+
+	plot(x -> logistic(x), ylim =[-0.1, 1.1], lw=2, label=L"\sigma(z)", legendfontsize = 15, framestyle=:origin, xlabel =L"z")
+	
+end
+
+# ╔═╡ 606e44c2-7829-427d-b938-509fc519e5ce
+md"""
+##
+
+#### Alternatively, 
+
+$\Large \sigma(z) = \frac{1}{1+e^{-z}}$
+
+#### can be written as 
+
+$$\Large z \Rightarrow \left \{ f(z) =z  \right\}\; \Rightarrow \;\sigma(f(z))$$
+
+
+"""
+
+# ╔═╡ 0190958d-05ab-4e92-aeec-8c8f4b2475a4
+md"""
+
+* ##### can be viewed as an additional transformation of the identity function  (or a  straight line go throughs the origin)
+
+$\Large f(z)=z$
+
+* ##### it squeezes a straight line to ``S`` curve
+"""
+
+# ╔═╡ 0a37ddc4-16b1-424a-8c75-b509f423ab59
+let
+	# using LogExpFunctions
+	gr()
+	plt1 = plot(x -> x, framestyle = :origin, lw=2, label=L"f(z) =z", legendfontsize =15,  xlim =[-5,5], ylim = [-3,3])
+
+	plt2 = plot(x -> logistic(x), ylim =[-0.1, 1.1], lw=2, label=L"\sigma(z)", legendfontsize = 15, framestyle=:origin, xlabel =L"z")
+
+	plot(plt1, plt2, size=(700,250))
+	
+end
+
 # ╔═╡ dac8feac-a469-4fac-9a32-7cbc44349278
 md"""
 
@@ -565,6 +640,12 @@ end
 
 )
 
+# ╔═╡ 1f7e2b6f-5e79-4df0-91d7-0d532c62d6f7
+md"""
+
+
+"""
+
 # ╔═╡ 892e526c-31bb-40d4-b865-3cc47a675b10
 md"""
 
@@ -664,8 +745,8 @@ TwoColumn(show_img("logisticgif1.gif", w=450), show_img("logisticgif2.gif", w=45
 # ╔═╡ 798303a4-b09b-4a83-8d8e-1e3aeb5e6760
 md"""
 
-## Logistic regression as infernce 
-
+## Logistic regression as probabilistic infernce 
+#### A preview
 
 
 #### Which decision boundary is more probable ?
@@ -929,44 +1010,63 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
 """
 
 # ╔═╡ 3dc762c6-c3b6-4478-b587-96bfe93ce671
-md"""
+# md"""
 
-## The likelihood function
+# ## The likelihood function
 
-$$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
+# $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
 
-* ##### where $\sigma = \sigma(\mathbf{w}^\top\mathbf{x})$ is the bias of the Bernoulli
-
-
-* ##### this is called the **likelihood function of $\mathbf{w}$**
+# * ##### where $\sigma = \sigma(\mathbf{w}^\top\mathbf{x})$ is the bias of the Bernoulli
 
 
-## 
-
-#### The function can be rewritten as a one-liner 
+# * ##### this is called the **likelihood function of $\mathbf{w}$**
 
 
-$$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
-&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+# ## 
+
+# #### The function can be rewritten as a one-liner 
+
+
+# $$\Large\begin{align}\ell(\mathbf{w})&= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases} \\ 
+# &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
 
 
 
-"""
+# """
 
 # ╔═╡ f14e5683-6bf2-4c4e-837c-72519ac487e4
-aside(tip(md"""
-Recall $x^0 =1$ for all $x$ and $x^1 = x$
+# aside(tip(md"""
+# Recall $x^0 =1$ for all $x$ and $x^1 = x$
 
-Therefore, when $y=1$, we have 
+# Therefore, when $y=1$, we have 
 		  
-$\begin{align}\ell(\cdot)&=\sigma^1 (1-\sigma)^{1-1} \\
-&=\sigma \cdot (1-\sigma)^0 \\ &=\sigma \cdot 1 \\ &= \sigma\end{align}$
+# $\begin{align}\ell(\cdot)&=\sigma^1 (1-\sigma)^{1-1} \\
+# &=\sigma \cdot (1-\sigma)^0 \\ &=\sigma \cdot 1 \\ &= \sigma\end{align}$
 
-as expected; The other case works follow the same logic.
-"""))
+# as expected; The other case works follow the same logic.
+# """))
 
 # ╔═╡ e8c2ec7c-50e3-45fb-bf4c-d927d80333f6
+# md"""
+
+# ## The likelihood function
+
+# $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y = 1\\ 1- \sigma& y = 0\end{cases}$$
+
+# * ##### where $\sigma = \sigma(\mathbf{w}^\top\mathbf{x})$ is the bias of the Bernoulli
+
+
+# * ##### this is called the **likelihood function of $\mathbf{w}$**
+
+
+# * ##### it is a function of the unknown parameter $\mathbf{w}$
+#   * ##### here both $\mathbf{x}, y$ are considered given and fixed (*i.e.* not variables)
+
+
+# """
+
+# ╔═╡ 8d0df96c-34bf-4384-ad35-b366172bc147
 md"""
 
 ## The likelihood function
@@ -983,6 +1083,10 @@ $$\Large\ell(\mathbf{w}) = p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \sigma& y 
   * ##### here both $\mathbf{x}, y$ are considered given and fixed (*i.e.* not variables)
 
 
+#### If we take log, we have the log likelihoods
+
+$$\Large \ln \ell(\mathbf{w}) = \ln p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \ln \sigma& y = 1\\ \ln (1- \sigma)& y = 0\end{cases}$$
+
 """
 
 # ╔═╡ 4e1bc7a3-a927-447d-8580-4696a26b24c6
@@ -990,81 +1094,96 @@ md"""
 
 ## The likelihood function
 
-#### The function can be rewritten as a one-liner 
 
 
-$$\Large\begin{align}\ell(\mathbf{w})
-&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+#### The log likelihood 
 
+$$\Large \ln \ell(\mathbf{w}) = \ln p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \ln \sigma& y = 1\\ \ln (1- \sigma)& y = 0\end{cases}$$
 
-#### If we take log on both sides,we have
+### can be written as a one-liner (since $y \in \{0,1\}$)
 
-
-$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
-
-
+$$\Large \ln \ell(\mathbf{w})  = y \ln \sigma + (1-y) \ln(1-\sigma)$$
 
 """
 
-# ╔═╡ 3c20084e-c518-4584-b8fc-8cb9f629bdfd
-aside(tip(md"""
-Recall log identities
-		  
-$\ln x^y = y\ln x$
-
-$\ln xy = \ln x + \ln y$
-"""		  
-))
-
-# ╔═╡ 1b1c4e27-2c45-435d-b8b0-186b3937c00f
+# ╔═╡ c1ecf7fa-114c-4917-8cc6-b92cd7708066
 md"""
 
-## The likelihood function and cross entropy
-
-#### The function can be rewritten as a one-liner 
+## The likelihood function
 
 
-$$\Large\begin{align}\ell(\mathbf{w})
-&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
 
+#### The log likelihood 
 
-#### If we take log on both sides, we recover the (negative) cross entropy loss
+$$\Large \ln \ell(\mathbf{w}) = \ln p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \ln \sigma& y = 1\\ \ln (1- \sigma)& y = 0\end{cases}$$
 
+* #### can be written as a one-liner (since $y \in \{0,1\}$)
 
-$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
+$$\Large \ln \ell(\mathbf{w})  = y \ln \sigma + (1-y) \ln(1-\sigma)$$
 
-#### This looks awfully like the cross entropy loss
+#### This is almost the same the cross entropy loss
 
 $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
 
 """
+
+# ╔═╡ 3c20084e-c518-4584-b8fc-8cb9f629bdfd
+# aside(tip(md"""
+# Recall log identities
+		  
+# $\ln x^y = y\ln x$
+
+# $\ln xy = \ln x + \ln y$
+# """		  
+# ))
+
+# ╔═╡ 1b1c4e27-2c45-435d-b8b0-186b3937c00f
+# md"""
+
+# ## The likelihood function and cross entropy
+
+# #### The function can be rewritten as a one-liner 
+
+
+# $$\Large\begin{align}\ell(\mathbf{w})
+# &= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+
+
+# #### If we take log on both sides, we recover the (negative) cross entropy loss
+
+
+# $$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
+
+# #### This looks awfully like the cross entropy loss
+
+# $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
+
+
+# """
 
 # ╔═╡ 8005ca99-ad4a-48e9-8607-f809a1cbde2e
 md"""
 
 ## The likelihood function and cross entropy
 
-#### The function can be rewritten as a one-liner 
 
 
-$$\Large\begin{align}\ell(\mathbf{w})
-&= \sigma^{y}(1-\sigma)^{1-y} \end{align}$$
+#### The log likelihood 
 
+$$\Large \ln \ell(\mathbf{w}) = \ln p(y|\mathbf{w}, \mathbf{x})= \begin{cases} \ln \sigma& y = 1\\ \ln (1- \sigma)& y = 0\end{cases}$$
 
-#### If we take log on both sides, we recover the (negative) cross entropy loss
+* #### can be written as a one-liner (since $y \in \{0,1\}$)
 
+$$\Large \ln \ell(\mathbf{w})  = y \ln \sigma + (1-y) \ln(1-\sigma)$$
 
-$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
-
-#### This looks awfully like the cross entropy loss
+#### This is almost the same the cross entropy loss
 
 $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
-
 #### Indeed, 
 
-$$\Large \text{cross-entropy}(\mathbf{w}) = - \mathscr{L}(\mathbf{w})$$
+$$\Large \text{cross-entropy}(\mathbf{w}) =-\ln \ell(\mathbf{w})$$
 
 """
 
@@ -1082,7 +1201,7 @@ $$\Large\begin{align}\ell(\mathbf{w})
 #### If we take log on both sides, we recover the (negative) cross entropy loss
 
 
-$$\Large\mathscr{L}(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
+$$\Large\ln \ell(\mathbf{w}) = y \ln \sigma+ (1-y)\ln(1-\sigma)$$
 
 #### This looks awfully like the cross entropy loss
 
@@ -1091,37 +1210,37 @@ $$\Large \text{cross-entropy}(\mathbf{w}) = -y \ln \sigma - (1-y)\ln(1-\sigma)$$
 
 #### Indeed, 
 
-$$\Large \text{cross-entropy}(\mathbf{w}) = - \mathscr{L}(\mathbf{w})$$
+$$\Large \text{cross-entropy}(\mathbf{w}) = - \ln \ell(\mathbf{w})$$
 
 
 
 #### Minimising cross entropy loss ≡ maximising log-likelihood 
 
-$$\Large\min_\mathbf{w}\text{cross-entropy}(\mathbf{w}) \Longleftrightarrow \max_{\mathbf{w}} \mathscr{L}(\mathbf{w})$$
+$$\Large\min_\mathbf{w}\text{cross-entropy}(\mathbf{w}) \Longleftrightarrow \max_{\mathbf{w}} \ln \ell(\mathbf{w})$$
 """
 
 # ╔═╡ 0f9cb0bd-e5f2-44ea-9717-6b3c718221fb
-md"""
+# md"""
 
-## Cross-entropy loss -- how & why ?
+# ## Cross-entropy loss -- how & why ?
 
 
 
-#### Since $y^{(i)} \in \{0, 1\}$ is binary, the loss
+# #### Since $y^{(i)} \in \{0, 1\}$ is binary, the loss
 
-$$\Large
-  \boxed{\ell^{(i)}(\mathbf{w}) = - {y^{(i)}} \ln \sigma^{(i)}- (1- y^{(i)}) \ln (1-\sigma^{(i)})}$$
+# $$\Large
+#   \boxed{\ell^{(i)}(\mathbf{w}) = - {y^{(i)}} \ln \sigma^{(i)}- (1- y^{(i)}) \ln (1-\sigma^{(i)})}$$
 
-#### reduces to
+# #### reduces to
 
-```math
-\Large
-\ell^{(i)}(\mathbf{w}) = \begin{cases}
--\ln (1-\sigma^{(i)})& y^{(i)} = 0\\
--\ln(\sigma^{(i)})& y^{(i)} = 1
-\end{cases}
-```
-"""
+# ```math
+# \Large
+# \ell^{(i)}(\mathbf{w}) = \begin{cases}
+# -\ln (1-\sigma^{(i)})& y^{(i)} = 0\\
+# -\ln(\sigma^{(i)})& y^{(i)} = 1
+# \end{cases}
+# ```
+# """
 
 # ╔═╡ eb52c3c4-c8f9-4890-bf4e-8c40a4ec34bb
 md"""
@@ -3729,6 +3848,12 @@ version = "1.9.2+0"
 # ╟─03c37940-c5d7-4b9d-85bc-2427bb89c5e5
 # ╟─4052bc2a-1cc7-406d-b4fb-6bbc0f3ff2fe
 # ╟─e7438b3e-9815-4954-86e1-020222a78a12
+# ╟─0b90d3c9-9a9d-4482-88fe-6be4b1202edd
+# ╟─666a36f7-047c-4fd3-b27a-13991803b868
+# ╟─e0d7e6fc-43c7-4652-b577-d3c43549d98b
+# ╟─606e44c2-7829-427d-b938-509fc519e5ce
+# ╟─0190958d-05ab-4e92-aeec-8c8f4b2475a4
+# ╟─0a37ddc4-16b1-424a-8c75-b509f423ab59
 # ╟─dac8feac-a469-4fac-9a32-7cbc44349278
 # ╟─d9cb4740-78d6-43a3-b48c-ce2a864a2855
 # ╟─97bd4d20-3410-4768-9045-ac897ab74bdb
@@ -3736,6 +3861,7 @@ version = "1.9.2+0"
 # ╠═b00ae860-c105-4512-a469-928c5649e760
 # ╟─9198eafd-1059-4f49-9cf4-6c303ca7d35b
 # ╟─7fed82b6-e77a-4fb1-87bb-0843ec6d5dfa
+# ╟─1f7e2b6f-5e79-4df0-91d7-0d532c62d6f7
 # ╟─892e526c-31bb-40d4-b865-3cc47a675b10
 # ╟─eaf19ee8-d73f-4c82-a548-5c26e0b357e0
 # ╟─5093efef-7022-48c0-a20e-fc17b9fcd674
@@ -3767,7 +3893,9 @@ version = "1.9.2+0"
 # ╟─3dc762c6-c3b6-4478-b587-96bfe93ce671
 # ╟─f14e5683-6bf2-4c4e-837c-72519ac487e4
 # ╟─e8c2ec7c-50e3-45fb-bf4c-d927d80333f6
+# ╟─8d0df96c-34bf-4384-ad35-b366172bc147
 # ╟─4e1bc7a3-a927-447d-8580-4696a26b24c6
+# ╟─c1ecf7fa-114c-4917-8cc6-b92cd7708066
 # ╟─3c20084e-c518-4584-b8fc-8cb9f629bdfd
 # ╟─1b1c4e27-2c45-435d-b8b0-186b3937c00f
 # ╟─8005ca99-ad4a-48e9-8607-f809a1cbde2e
@@ -3830,7 +3958,7 @@ version = "1.9.2+0"
 # ╟─5e32c50e-5802-4826-bd38-92c5d52e5708
 # ╟─1b1076e1-4ab0-4266-867c-df4181f3c4e5
 # ╟─735f5b42-99fd-41cd-9259-2ece99f976ac
-# ╠═c2d268f7-7b92-40ef-a700-678750c80080
+# ╟─c2d268f7-7b92-40ef-a700-678750c80080
 # ╟─295da8be-bbd4-4437-a7b6-48b8b3e0bc60
 # ╟─a729e2fe-c27a-4cfd-b126-c08c36a4d5d9
 # ╟─27a5b8a7-a62d-4be5-aa38-87eac18ca883
