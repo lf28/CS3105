@@ -170,7 +170,7 @@ $\large \text{bn} = \{G, \{P\}\}$
 \
 
 
-* ``\Big\{P(X_i|\text{parent}(X_i))\Big\}`` for ``i=1,\ldots, n`` the CPFs
+* #### ``\Big\{P(X_i|\text{parent}(X_i))\Big\}`` for ``i=1,\ldots, n`` 
   * ##### one CPF for each node
 
 

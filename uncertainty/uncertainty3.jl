@@ -144,13 +144,17 @@ TwoColumn(md"""
 
 * ##### Variational autoencoder (VAE)
 
+		  
+* ##### Autoregressive models (e.g. transformer)
+
 
 * ##### Gaussian mixture models (GMM)
 
 
 * ##### Latent Dirichlet Allocation (LDA)
+		  
 
-
+* ##### Diffusion based models
 
 
 * ##### and so on...
@@ -463,7 +467,7 @@ $$\Large P(X_1= t, X_2= t, \ldots, X_n=t)?$$
 """
 
 # ╔═╡ c6324d15-758e-42d4-8461-8266ad7f85a1
-Foldable("", md"""
+Foldable("Solution", md"""
 ```math
 \begin{align}
 P(X_1= t, X_2= t, \ldots, X_n=t) &=\prod_i P(X_i=t|\underbrace{\text{parents}(X_i)}_{\emptyset})\\
@@ -613,6 +617,7 @@ md"""
 
 
 #### The whole data generating process is
+
 """
 
 # ╔═╡ 419767a2-7024-475d-b46e-7fb2cd527542

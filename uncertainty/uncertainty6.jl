@@ -35,6 +35,9 @@ end
 # ╔═╡ b8e15ed7-fb62-4565-9d14-5e00e460b0ca
 using MCMCChains
 
+# ╔═╡ 7ae086d4-b102-4033-911a-5e36a270002a
+using StatsBase
+
 # ╔═╡ 5d134b41-d025-4144-97e0-5bcd9d3d2eb5
 ChooseDisplayMode()
 
@@ -249,7 +252,7 @@ md"""
 # ╔═╡ caa85491-27d6-45ee-b630-41a14af8c883
 html"""
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/OkmNXy7er84" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/OkmNXy7er84?si=eYll-B3BccnfHsga" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 """
 
 # ╔═╡ 9caac0a1-a638-443b-a713-fb3622a6a240
@@ -259,10 +262,10 @@ md"""
 
 #### Just sample $m$ random triangles, then count the frequency!
 
-$\Large P(\text{inside}(A,B,C)) \approx \frac{1}{M} \sum_{m=1}^M I(\text{inside}(A^{(m)},B^{(m)},C^{(m)}))$
+$\Large P(\text{inside}(A,B,C)) \approx \frac{1}{M} \sum_{m=1}^M \mathbb{1}(\text{inside}(A^{(m)},B^{(m)},C^{(m)}))$
 
 
-* ##### ``I(\cdot)`` is called _indicator function_, it returns ``1`` if true otherwise ``0``
+* ##### ``\mathbb{1}(\cdot)`` is called _indicator function_, it returns ``1`` if true otherwise ``0``
 """
 
 # ╔═╡ f38df68d-8544-4e3c-b89e-224d0ea5c198
@@ -482,9 +485,9 @@ md"""
 ### *For example:*
 
 ```math
-P(X_1= h, X_2=h, X_3=h,  X_4=h) \approx \frac{\sum_{m=1}^M I(x^{(m)}_1=h,x^{(m)}_2=h,x^{(m)}_3=h, x^{(m)}_4=h)}{M}
+P(X_1= h, X_2=h, X_3=h,  X_4=h) \approx \frac{\sum_{m=1}^M \mathbb{1}(x^{(m)}_1=h,x^{(m)}_2=h,x^{(m)}_3=h, x^{(m)}_4=h)}{M}
 ```
-* ##### ``I(\cdot)``: indicator function that returns 1 (if true) or 0 (if false) based on the condition
+* ##### ``\mathbb{1}(\cdot)``: indicator function that returns 1 (if true) or 0 (if false) based on the condition
 
 * ##### the true value is 0.0625
 
@@ -499,7 +502,7 @@ md"""
 
 ## 
 ```math
-\Large P(X_1= h) \approx \frac{\sum_{m=1}^M I(x^{(m)}_1=h)}{M}
+\Large P(X_1= h) \approx \frac{\sum_{m=1}^M \mathbb{1}(x^{(m)}_1=h)}{M}
 ```
 * ##### the true value should be 0.5
 
@@ -515,7 +518,7 @@ md"""
 ##
 
 ```math
-\large P\left(\sum_{j=1}^4 X_j = 3\right ) \approx \frac{\sum_{m=1}^M I\left (\sum_j x^{(m)}_j = 3\right )}{M}
+\large P\left(\sum_{j=1}^4 X_j = 3\right ) \approx \frac{\sum_{m=1}^M \mathbb{1}\left (\sum_j x^{(m)}_j = 3\right )}{M}
 ```
 """
 
@@ -535,11 +538,11 @@ md"""
 #### All queries become frequency counting:
 
 ```math
-\Large P(Q) \approx \frac{\sum_m I(f(x^{(m)}))}{M}
+\Large P(Q) \approx \frac{\sum_m \mathbb{1}(f(x^{(m)}))}{M}
 ```
 
 * ##### ``f(x^{(m)})``: return true or false based on the query ``Q``
-* ##### ``I(\cdot)``: return 1 or 0 based on the condition
+* ##### ``\mathbb{1}(\cdot)``: return 1 or 0 based on the condition
 """
 
 # ╔═╡ b7e08b96-c38d-4375-8b1d-2f79bcf25c63
@@ -571,6 +574,63 @@ md"""
 * ##### `rand()` returns a uniform distributed random number between 0 and 1
 """
 
+# ╔═╡ 3dc132b2-b0e5-4e9a-87dd-5401ec0cc1f5
+md"""
+
+## Demo 
+
+"""
+
+# ╔═╡ f51638cc-8694-414c-85a2-b31883ab7765
+let
+	# Random.seed!(12345)
+	K = 2
+	ps = [0.2, 0.8]
+	# ps = ps./sum(ps)
+	# ps = 2.^(ps) ./ sum(2.^(ps))
+
+	# bar(ps, label=L"p(x)", xlabel=L"x", ylabel=L"P(x)", ylim =[0,1.01], bar_width=0.25)
+
+	cps = cumsum(ps)
+
+	# bar(cps, label=L"p(x)", xlabel=L"x", ylabel=L"P(x)", ylim =[0,1.01], bar_width=0.25)
+
+	plt = plot([1, 1], [0, ps[1]], lw=5, label="false", ylim = [-0.01, 1.01], ratio=5, xlim = [1-0.5, K+0.5], xticks =false, c=1, xlabel=L"x", ylabel="Cumulative prob function")
+	
+	for k in 2:length(ps)
+		plot!([k, k], [cps[k-1], cps[k]], lw=5, c =2, label="true")
+	end
+
+	plt
+
+end
+
+# ╔═╡ a22e7549-30a8-4e5e-b640-e4dbe66d4b46
+md"""
+
+## Demo
+
+
+#### Inverse sampling: 
+
+### `rand() < 0.8`
+
+"""
+
+# ╔═╡ 21e0d81a-eda2-4978-bfd1-cfd3463dddc3
+function produce_gif(plts, fps = 10, every_num = 1)
+	anim = @animate for p in plts
+		plot(p)
+	end every every_num
+	return gif(anim, fps=fps)
+end
+
+# ╔═╡ 966a8f12-b6fa-4929-8752-fcdf787291b7
+md"""
+
+## Demo
+"""
+
 # ╔═╡ 60394dbc-8b88-4935-bbf1-4bc71bc17c9b
 md"Bias: $(@bind bias Slider(0.05:0.05:0.95; default=0.8, show_value=true)); Sample size M: $(@bind msize Slider(100:100:5000; default=1000, show_value=true))"
 
@@ -585,7 +645,7 @@ end
 begin
 	ticklabel = string.([false, true])
 	histogram(binary_samples, xticks=(0:1, ticklabel), label="")
-	bar([1-mean(binary_samples), mean(binary_samples)], xticks=(1:2, ticklabel), xtickfontsize=20, label="", ylim =[0,1])
+	bar([1-mean(binary_samples), mean(binary_samples)], xticks=(1:2, ticklabel), xtickfontsize=20, label="", c =[1,2],ylim =[0,1], bar_width =0.25)
 end
 
 # ╔═╡ 93f97042-3f6d-496d-9dd2-66cb7c678e27
@@ -636,11 +696,128 @@ die_sample = let
 	sample = rand(Categorical([1/10, 1/10, 1/10, 1/10, 1/10, 1/2]), mc)
 end;
 
+# ╔═╡ 98680df6-4685-467a-a220-4ed611a27d43
+md"""
+## An example
+
+
+#### Assume $K=5$, a 5-category random variable
+
+"""
+
+# ╔═╡ cdf3a3b8-2a30-4b1a-a139-8b2c6856dde7
+begin
+	# Random.seed!(12345)
+	K = 5
+	ps = [8,3,1,3,8]
+	ps = ps./sum(ps)
+	# ps = 2.^(ps) ./ sum(2.^(ps))
+
+	# bar(ps, label=L"p(x)", xlabel=L"x", ylabel=L"P(x)", ylim =[0,1.01], bar_width=0.25)
+
+	cps = cumsum(ps)
+
+	# bar(cps, label=L"p(x)", xlabel=L"x", ylabel=L"P(x)", ylim =[0,1.01], bar_width=0.25)
+
+	plt = plot([1, 1], [0, ps[1]], lw=5, c =1, label="", ylim = [-0.01, 1.01], ratio=15, xlim = [1-0.5, K+0.5], xlabel=L"x", ylabel="CPF(x)")
+	
+	for k in 2:length(ps)
+		plot!([k, k], [cps[k-1], cps[k]], lw=5, c =k, label="")
+	end
+
+	plt
+
+end
+
 # ╔═╡ 4663ca2f-6428-405a-b126-8f46fa3d7ee3
 	function mcestimate(samples, func)
 		est = mapslices(func, samples; dims= 2)
 		return mean(est)
 	end
+
+# ╔═╡ d4bead6e-37fb-44a2-ac7a-7e829cdaafa6
+function rand_inverse_sample(ps, p0 = rand())
+	k = 1
+	totalp = 1.0 - ps[1]
+	p0_ = p0 - ps[1]
+	while (p0_ > 0) && (k < K)
+		k = k + 1
+		p0_ = p0_ - ps[k]
+		totalp = totalp - ps[k]
+	end
+	return k 
+end
+
+# ╔═╡ 63901e9a-8baa-4ad7-a71d-67aa67f0e3e9
+begin 
+	nn = 250
+	rrs = rand(nn)
+	samples_ps = [rand_inverse_sample(ps, r) for r in rrs]
+end;
+
+# ╔═╡ 4432f306-2783-4454-b83a-a363d4302c19
+function produce_inverse_sampling_discrete(samples, ps, rs; dpi=200)
+	plts = []
+	max_k = maximum(StatsBase.counts(samples, 1:length(ps)))
+	nk_counts = zeros(Int, length(ps))
+	K = length(ps)
+	# cs = palette(:jet, length(ps))
+	cps = cumsum(ps)
+	for m in 1:length(samples)
+		plt_cumsum = plot([1, 1], [0, ps[1]], lw=5, c = 1, label="", ylim = [-0.02, 1.05], xlabel=L"x", xlim =[0-0.2, K+0.5], ylabel=L"F(x)", legend=:outerright, framestyle=:origin)
+
+		if length(ps) ==2
+			plot!(xticks=(1:2, string.([false, true])))
+		end
+	
+		for k in 2:length(ps)
+			plot!([k, k], [cps[k-1], cps[k]], lw=5, c = k, label="")
+		end
+		k = samples[m]
+		p0 = rs[m]
+		scatter!([0], [p0], m=:xcross, c=:gray, ms=5, label=L"p\sim \texttt{Unif}(0,1)")
+		plot!([0, k], [p0, p0], lw=1, lc=:gray, ls=:dot, arrow=true,  label="")
+		plot!([k, k], [p0, 0], lw=1, c = k, ls=:solid, arrow=true, label="")
+		scatter!([k],[p0], m=:circle, ms = 5, fill=false, mc=:white, msc=:gray,markerstrokewidth=2, label="")
+		plot!([0, 0], [1, 0], lw=3, c =:gray, ls=:solid, label="")
+	
+		scatter!([k], [0], fill=false, c = k, ms=1, markerstrokewidth=0.01, label=L"x=%$(k)", alpha=0.5)
+		nk_counts[k] += 1
+		# cbars = cs
+		# cbars .= 1
+		# cbars[k] = :blue 
+		plt_hist = bar(1:length(ps), nk_counts,  xlim = [0, K+1], ylim =[0, max_k], label="", xlabel=L"x", ylabel="Frequency", xticks = 1:5, c = 1:K, framestyle=:semi, alpha=0.5)
+
+		if length(ps) ==2
+			plot!(xticks=(1:2, string.([false, true])))
+		end
+		plot!([k, k], [5, 0], lw=1, c = k, ls=:solid, arrow=true, label="")
+
+		plt_combined = plot(plt_cumsum, plt_hist,  size=(600,350), layout = grid(1, 2, widths = [0.63, 0.37]), title="Sample iteration $(m)", titlefontsize=11 , dpi = dpi)
+		push!(plts, plt_combined)
+	end
+	return plts
+end
+
+# ╔═╡ 403736c1-8b68-4b94-9090-54943e361a43
+let 
+	nn_binary = 250
+	rrs_binary = rand(nn)
+	ps = [0.2, 0.8]
+	samples_ps_binary = [rand_inverse_sample(ps, r) for r in rrs_binary]
+	# default(palette = palette(:jet, length(ps)))
+	plts_dis = produce_inverse_sampling_discrete(samples_ps_binary, ps, rrs_binary; dpi=200)
+
+	produce_gif(plts_dis)
+end
+
+# ╔═╡ b784597f-b204-4b84-bdb7-6ddb6c67fc9a
+let 
+	# default(palette = palette(:jet, length(ps)))
+	plts_dis = produce_inverse_sampling_discrete(samples_ps, ps, rrs; dpi=200)
+
+	produce_gif(plts_dis)
+end
 
 # ╔═╡ 0d8e70e4-33f0-4b10-a758-214cea89c229
 md"""
@@ -960,7 +1137,7 @@ md"""
 #### *Lastly*: frequency counting as usual
 
 
-$$\Large P(C=t|W=+w) \approx \frac{\sum_{i=1}^{m}I(c^{(i)}=t\land w^{(i)}=+w)}{\underbrace{\sum_{i=1}^{m}I(w^{(i)}=+w)}_{\text{remaining sample size}}}$$
+$$\Large P(C=t|W=+w) \approx \frac{\sum_{i=1}^{m}\mathbb{1}(c^{(i)}=t\land w^{(i)}=+w)}{\underbrace{\sum_{i=1}^{m}\mathbb{1}(w^{(i)}=+w)}_{\text{remaining sample size}}}$$
 """
 
 # ╔═╡ 3dbdae2e-99b2-45a1-b2de-254d045cea01
@@ -1526,6 +1703,7 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
@@ -1538,6 +1716,7 @@ MCMCChains = "~6.0.6"
 Plots = "~1.41.1"
 PlutoTeachingTools = "~0.4.6"
 PlutoUI = "~0.7.73"
+StatsBase = "~0.33.21"
 StatsPlots = "~0.15.8"
 """
 
@@ -1547,7 +1726,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "3fd5de9e56af16858f6f2cc13be74e5fa027bc68"
+project_hash = "0e1afa01e2bdac8974341e0172a2777544ff4249"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -3941,6 +4120,7 @@ version = "1.9.2+0"
 # ╔═╡ Cell order:
 # ╟─0aad0f29-874a-40d6-aa46-a46340506a53
 # ╟─b8e15ed7-fb62-4565-9d14-5e00e460b0ca
+# ╟─7ae086d4-b102-4033-911a-5e36a270002a
 # ╟─5d134b41-d025-4144-97e0-5bcd9d3d2eb5
 # ╟─f2442f30-99ba-41af-9ec5-983bd4445483
 # ╟─457c2384-3b22-11ec-31af-9781671d335a
@@ -3983,15 +4163,27 @@ version = "1.9.2+0"
 # ╟─41f39b5d-b77e-435f-83c2-244a9d096db4
 # ╟─b7e08b96-c38d-4375-8b1d-2f79bcf25c63
 # ╟─9f38d276-cce5-44cc-8ea9-c47254fdec43
+# ╟─3dc132b2-b0e5-4e9a-87dd-5401ec0cc1f5
+# ╟─f51638cc-8694-414c-85a2-b31883ab7765
+# ╟─a22e7549-30a8-4e5e-b640-e4dbe66d4b46
+# ╟─403736c1-8b68-4b94-9090-54943e361a43
+# ╟─21e0d81a-eda2-4978-bfd1-cfd3463dddc3
+# ╟─966a8f12-b6fa-4929-8752-fcdf787291b7
+# ╠═cbb6a021-5afd-4f66-b8ae-db7319eafb74
 # ╟─60394dbc-8b88-4935-bbf1-4bc71bc17c9b
-# ╟─cbb6a021-5afd-4f66-b8ae-db7319eafb74
 # ╟─57704861-a87b-4399-82ba-cfa9c7360eb5
 # ╟─93f97042-3f6d-496d-9dd2-66cb7c678e27
 # ╟─ea7f0666-44c7-42a9-8c3a-122ea524a694
 # ╟─79274dd1-21d4-4c9c-aa83-72845cc7f25b
 # ╟─9e1ec787-4363-4549-a0e7-30ed4a25a04e
 # ╟─e6ba6bd7-7c87-4c6d-b008-89d243e31c2e
+# ╟─98680df6-4685-467a-a220-4ed611a27d43
+# ╟─cdf3a3b8-2a30-4b1a-a139-8b2c6856dde7
+# ╟─b784597f-b204-4b84-bdb7-6ddb6c67fc9a
 # ╟─4663ca2f-6428-405a-b126-8f46fa3d7ee3
+# ╟─d4bead6e-37fb-44a2-ac7a-7e829cdaafa6
+# ╟─63901e9a-8baa-4ad7-a71d-67aa67f0e3e9
+# ╟─4432f306-2783-4454-b83a-a363d4302c19
 # ╟─0d8e70e4-33f0-4b10-a758-214cea89c229
 # ╟─2d1abd50-0920-4138-973c-23bf951466da
 # ╟─2393f987-e156-4953-9132-30610fa90b7c

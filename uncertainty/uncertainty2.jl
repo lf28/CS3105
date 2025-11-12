@@ -20,7 +20,9 @@ end
 begin
 	using PlutoTeachingTools
 	using PlutoUI
-	using Plots; default(fontfamily="Computer Modern", framestyle=:box) # LaTex-style
+	using Plots; default(fontfamily="Computer Modern", framestyle=:box, dpi=200) # LaTex-style
+
+	
 	using LinearAlgebra
 	using StatsPlots
 	using LogExpFunctions
@@ -144,13 +146,17 @@ md"""
 
 ####  *Joint distribution* of ``X_1, X_2, \ldots, X_n`` 
 
+\
 
 ```math
 \Large
 \begin{equation} P(X_1= x_1, X_2=x_2,\ldots, X_n= x_n) = P(x_1, x_2, \ldots, x_n) \end{equation} 
 ```
 
-* it satisfies $P(x_1, x_2, \ldots, x_n) \geq 0\;\; \text{and}\;\;  \sum_{x_1, x_2, \ldots, x_n} P(x_1, x_2, \ldots, x_n) =1$ 
+
+\
+
+* ##### it satisfies $P(x_1, x_2, \ldots, x_n) \geq 0\;\; \text{and}\;\;  \sum_{x_1, x_2, \ldots, x_n} P(x_1, x_2, \ldots, x_n) =1$ 
 
 \
 
@@ -383,16 +389,16 @@ TwoColumn(md"""
 
 #### Natural for us to think *causally* (forwardly)
 
-$$\large H \xRightarrow[\text{probability}]{\text{forward}} \mathcal{D}$$ 
+$$\Large H \xRightarrow[\text{probability}]{\text{forward}} \mathcal{D}$$ 
 
 
 * ##### ``h`` is the hidden **cause** (usually unknown), with prior 
 
-$$\text{prior: }P(H)$$
+$$\large\text{prior: }P(H)$$
 * ##### ``\mathcal{D}``, the observation, *e.g.* `cough`; 
   * given **cause** `h`, how likely observe the **effect** ``\mathcal{D}``: 
   
-$$\text{likelihood: }P(\mathcal D|H)$$
+$$\large\text{likelihood: }P(\mathcal D|H)$$
 
 """, html"""<br><br><center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/cough_bn.png" width = "100"/></center>
 """)
@@ -531,6 +537,21 @@ md"""
 |  | ``\texttt{healthy}`` | **0.05** | 0.95 |
 |  | ``\texttt{cold}`` | **0.85** | 0.15|
 |  | ``\texttt{cancer}`` | **0.9** | 0.1|
+"""
+
+# ╔═╡ e219b295-e099-447b-b3f9-ae39b5c42361
+md"""
+
+
+## Cough example: posterior
+
+### Apply Bayes' rule
+
+$$\large\begin{align}P(h|\texttt{cough}) = \frac{P(h) P(\texttt{cough}|h)}{P(\texttt{cough})} = \begin{cases} 0.89 \times 0.05/P(\texttt{cough}) & h=\texttt{healthy} \\ 0.1 \times 0.85/P(\texttt{cough}) & h=\texttt{cold} \\ 0.01 \times 0.9/ P(\texttt{cough})& h=\texttt{cancer}  \end{cases}
+\end{align}$$
+
+
+
 """
 
 # ╔═╡ e08423c0-46b1-45fd-b5ec-c977dfeea575
@@ -2837,6 +2858,7 @@ version = "1.9.2+0"
 # ╟─8b4ca0a1-307d-456d-bb93-a70f4de1b49f
 # ╟─bec1b8fa-ff3a-4a18-bdd8-4101c671b832
 # ╟─27dc6050-6a89-44ad-8cc6-f2306e3bd125
+# ╟─e219b295-e099-447b-b3f9-ae39b5c42361
 # ╟─e08423c0-46b1-45fd-b5ec-c977dfeea575
 # ╟─8a433b8c-e9f3-4924-bdbe-68c8c5d245b5
 # ╟─f7875458-fbf8-4ead-aa77-437c11c97550

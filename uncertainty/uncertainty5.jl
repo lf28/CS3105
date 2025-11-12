@@ -45,7 +45,7 @@ end;
 
 # ╔═╡ 56013389-2242-4f23-b272-558fcdecd3b1
 begin
-	import TikzGraphs
+	using TikzGraphs
 	using Graphs
 end
 
@@ -3319,7 +3319,7 @@ version = "1.9.2+0"
 # ╟─d0ea7686-9d39-40d3-a695-8c71783a4a1f
 # ╟─748ade25-bb47-4a67-a624-663fb7a5933f
 # ╟─344a3078-fad8-4985-8270-c52b7be034f2
-# ╟─56013389-2242-4f23-b272-558fcdecd3b1
+# ╠═56013389-2242-4f23-b272-558fcdecd3b1
 # ╟─409d6b4d-f0c3-44b0-bfab-7331f434de9b
 # ╟─8bd9e5a8-4534-4c2b-b6e6-5736bd9ec745
 # ╟─b44bedea-a0d8-497c-9285-ab5f7aed6d60

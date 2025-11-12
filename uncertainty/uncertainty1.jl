@@ -366,7 +366,7 @@ md"""
 #### Why we need _formal justification_ (or probability theory)?
 
 * ##### your intuitive can fail miserably
-  * turns out human brains are not wired to do uncertainty correctly
+  * turns out human brains are not wired to do uncertainty correctly all the time
 
 
 * ##### if something cannot be justified with maths, then it's wobbly, or at least not very scientific
@@ -450,13 +450,9 @@ md"""
 
 
 
-#### How *Probability Theory* solves all above problems via
+#### How *Probability Theory* solves all above problems via one formula
 
 
-* ##### the math tool to deal with uncertainty
-
-
-* ##### one single formula 
 
 $$\huge P(Query| Evidence)$$
 
@@ -469,12 +465,12 @@ $$\huge P(Query| Evidence)$$
 """
 
 # ╔═╡ 0d104033-945d-4c0d-ad1d-1a3750c9adea
-md"""
+# md"""
 
-!!! important ""
-	##### ``\;\;\;\;\;\;`` _Probability theory_ is the tool to deal with **_Uncertainty_** correctly
+# !!! important ""
+# 	##### ``\;\;\;\;\;\;`` _Probability theory_ is the tool to deal with **_Uncertainty_** correctly
 
-"""
+# """
 
 # ╔═╡ 7d8ed44a-06ba-4432-8345-55bb31eb8f1d
 # md"""
@@ -559,6 +555,7 @@ md"""
 > \mathbb{P}(E) = \lim_{n\rightarrow \infty} \frac{n(E)}{n}
 > ```
 > * ##### ``n(E)``: the number of times that event ``E`` happens
+> * ##### ``n``: the total number of experiments
 
 ##
 
@@ -586,7 +583,9 @@ TwoColumn(md"
 
 ```math
 \large
-\mathbb{P}(\texttt{Head}) = \lim_{n\rightarrow \infty}\frac{n(\texttt{head})}{n}=0.5
+\begin{align}\mathbb{P}(\texttt{Head}) &=0.5 \\ 
+&= \lim_{n\rightarrow \infty}\frac{n(\texttt{head})}{n}
+\end{align}
 ```
 * ##### `Head`: a head turns up
 #### *Frequentist's* interpretation
@@ -610,7 +609,7 @@ L"\large P(\texttt{head}) = \lim_{n\rightarrow \infty}\frac{n(\texttt{head})}{n}
 # ╔═╡ 340c9b5b-5ca0-4313-870e-912d5c2dc451
 let
 	p_mc = nhead/mc
-	plot(["tail", "head"], [1-p_mc, p_mc], st=:bar, label="", title=L"P(\texttt{Head})",ylabel="Probability")
+	plot(["tail", "head"], [1-p_mc, p_mc], st=:bar, label="", title=L"P(\texttt{Head})",ylabel="Probability", xtickfontsize=15,ylim = [0, 1.1])
 end
 
 # ╔═╡ deedb2db-8483-4026-975f-3d5af5a249b7
@@ -731,6 +730,30 @@ snow & 0.1
 ```
 """
 
+# ╔═╡ 3936846c-52e9-47ab-b557-38081dfdbe12
+Foldable("Summation notation Σ", md"""
+
+We use ``\sum`` to denote the sum of a series. For example, given vectors $\mathbf{x} = [x_1, x_2, \ldots, x_n]$,
+
+The total sum is denoted as 
+
+$$\sum_{i=1}^n x_i = x_1+x_2+\ldots+x_n$$
+
+
+The total sum of the odd indexed entries can be loosely written as 
+
+$$\sum_{i=1,3,\ldots} x_i = x_1+x_3+\ldots$$
+
+Alternatively, to be more concrete, 
+
+$$\sum_{i \in \{1,\ldots, n\}\; \&\; i \% 2=1}  x_i$$
+
+Or one more way, note that $\mathbb{1}(\cdots)$ is an indicator function that returns either 1 or 0 based on the test condition of the input.
+
+$$\sum_{i \in \{1,\ldots, n\}}  {\mathbb{1}(i\%2=1)} \cdot x_i$$
+
+""")
+
 # ╔═╡ 4d99c216-e32f-43a3-a122-ccbb697711fc
 md"""
 ## Domain of a random variable
@@ -743,12 +766,14 @@ md"""
 
 * #### ``T:`` Is the temperature hot or cold?
   * ``\Omega =\{hot, cold\}``
-
+\
 
 ### *Continuous random variables*
 
 * #### ``T \in (-\infty, +\infty)`` the temperature in the room
-  * ``\Omega = [-\infty, \infty)``
+  * ``\Omega = (-\infty, \infty)``
+
+
 
 * #### ``D \in [0, +\infty)`` How long will it take to drive to St Andrews?
   * ``\Omega = [0, \infty)``
@@ -865,8 +890,11 @@ X & P(X)\\
 
 
 * ##### e.g. coin tossing, rain or not, guilty or not
-* ##### ``\theta`` (``0\leq \theta \leq 1``) is the parameter
-* ##### ``0 \leq P(x) \leq 1; \text{and}\; \sum_{x=0,1}P(x) = \theta + 1-\theta = 1``
+* ##### ``\theta`` (``0\leq \theta \leq 1``) is the parameter, called bias
+
+##### Note that 
+		  
+$\large 0 \leq P(x) \leq 1; \text{and}\; \sum_{x=0,1}P(x) = \theta + 1-\theta = 1$
 
 
 """, 
@@ -1144,7 +1172,7 @@ $$\Large P(X) = \begin{cases} 0.8 & x=1 \\
 # ╔═╡ 556617f4-4e88-45f4-9d91-066c24473c44
 md"""
 
-## Example -- Binomial random variable*
+## Example -- Binomial random variable
 
 
 #### Toss a coin with bias (``0\leq \theta \leq 1``) independently ``n`` times: 
@@ -1163,7 +1191,7 @@ P(Y_i) =\begin{cases}\theta &  Y_i=1 \\ 1-\theta & Y_i=0 \end{cases}
 
 $$\Large X= \sum_{i=1}^n Y_i$$
 
-## Example -- Binomial random variable*
+## Example -- Binomial random variable
 
 
 #### Toss a coin with bias (``0\leq \theta \leq 1``) independently ``n`` times: 
@@ -1428,6 +1456,15 @@ md"""
 # ╔═╡ 5df5d3ba-d6e8-4b8d-b7a9-008822a061ba
 Resource(figure_url * "sumrule_.png", :width=>800, :align=>"left")
 
+# ╔═╡ cb4dfdd2-a685-46ea-932f-7df1b1f0bc97
+Foldable("Correction", md"""
+
+The sum rule should have been
+$$P(t) = \sum_w P(t, w)$$
+and
+$$P(w) = \sum_t P(t, w)$$		 
+		 """)
+
 # ╔═╡ 64360513-f68f-4ec0-b393-de147a4fa891
 # md"Note it implies: $P(X_1= x_1) = \sum_{x_2} P(X_1= x_1, X_2=x_2)$
 # * also known as total probability rule"
@@ -1492,7 +1529,7 @@ hot & rain & 0.1 \\
  cold & rain & 0.3\end{array} \end{equation} 
 ```
 
-#### The conditional probability ``P(W=s|T=c)``
+##### The conditional probability 
 
 $$\large P(W=s|T=c) = \frac{P(W=s, T=c)}{\underbrace{P(T=c)}_{P(s, c) + P(r,c ) = 0.5}} = \frac{0.2}{0.2+0.3} = 0.4$$
 
@@ -1521,7 +1558,7 @@ md"""
 ## Aside: normalisation and ``\propto``
 
 ### *"Normalisation"*: divide each term by the total sum
-* ##### examples
+* #### examples
 
 $\langle 0.2, 0.3 \rangle \stackrel{\text{normalise}}{\Longrightarrow} \left \langle \frac{0.2}{0.2+0.3}, \frac{0.3}{0.2+0.3} \right \rangle = \left \langle \frac{2}{5}, \frac{3}{5} \right  \rangle$
 
@@ -1567,6 +1604,13 @@ P(A|B=b) \propto P(A, B=b)
 
 """
 
+# ╔═╡ c2bf647d-542c-47d8-87de-65a644eac516
+md"""
+
+
+#### _For example_, to compute $P(W|T=c)$
+"""
+
 # ╔═╡ 1607c49f-2ece-402a-9abb-6304f96c1dca
 Resource(figure_url * "selectnorm.png", :width=>850, :align=>"left")
 
@@ -1610,7 +1654,7 @@ cold & rain & 0.3\end{array} \end{equation}
 """
 
 # ╔═╡ b2490239-a2ba-453e-9a6e-ffb42a1b32b8
-Foldable("", md"
+Foldable("Solution", md"
 
 Select + Normalisation
 
@@ -1702,10 +1746,10 @@ $$\Large \forall x,y: P(x|y) = P(x)$$
 
 $$\Large \forall x,y: P(y|x) = P(y)$$
 
-* ##### intuition: knowing $Y$ (conditional on $Y=y$) has no effect on ``X`` (or knowing $X$ has no effect on $Y$)
+* ##### intuition: knowing $Y$ (conditional on $Y=y$) has no effect on predicting ``X`` (or knowing $X$ has no effect on predicting $Y$)
   
 
-#### $X,Y$ are independent,  it is denoted as ``X \perp Y``
+#### $X,Y$ independent, denoted as ``X \perp Y``
 
 
 ## Independence
@@ -1940,6 +1984,8 @@ P(X, Y) = P(X)P(Y)
 $$\Large P(X, Y) = P(X)P(Y|X);\;\; P(X, Y) = P(Y)P(X|Y)$$
 
   * ##### the chain order doesn't matter
+
+
   * ##### chain rule states how joint distribution factorised as a product
 """
 
@@ -1951,6 +1997,11 @@ md"""
 #### Chain rule is just *rearranged version* of conditional probability 
 
 $$\Large P(X|Y) = \frac{P(X, Y)}{P(Y)} \Rightarrow P(X|Y)P(Y) = P(X, Y)$$
+
+
+#### Similarly, 
+
+$$\Large P(Y|X) = \frac{P(X, Y)}{P(X)} \Rightarrow P(Y|X)P(X) = P(X, Y)$$
 
 """
 
@@ -2072,11 +2123,12 @@ md"""
 
 ## Relevant chapters
 
+\
+
+* #### Chapter 13. Quantifying Uncertainty
 
 
-* ###### Chapter 13. Quantifying Uncertainty
-
-* ###### Chapter 14. Probabilistic Reasoning
+* #### Chapter 14. Probabilistic Reasoning
 """
 
 # ╔═╡ 0734ddb1-a9a0-4fe1-b5ee-9a839a33d1dc
@@ -2531,9 +2583,9 @@ version = "1.16.0"
 
 [[deps.DataStructures]]
 deps = ["OrderedCollections"]
-git-tree-sha1 = "6c72198e6a101cccdd4c9731d3985e904ba26037"
+git-tree-sha1 = "e357641bb3e0638d353c4b29ea0e40ea644066a6"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.19.1"
+version = "0.19.3"
 
 [[deps.DataValueInterfaces]]
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
@@ -3294,9 +3346,9 @@ uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.28.10+0"
 
 [[deps.Measures]]
-git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
+git-tree-sha1 = "b513cedd20d9c914783d8ad83d08120702bf2c77"
 uuid = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
-version = "0.3.2"
+version = "0.3.3"
 
 [[deps.MetaGraphs]]
 deps = ["Graphs", "JLD2", "Random"]
@@ -4422,6 +4474,7 @@ version = "1.9.2+0"
 # ╟─128b6ad8-aa21-4d0a-8124-2cf433bc79c4
 # ╟─67f1a8a2-e78a-4220-b127-ae30385822d5
 # ╟─403af436-d7f2-43c0-803a-8104ba69fcfd
+# ╟─3936846c-52e9-47ab-b557-38081dfdbe12
 # ╟─4d99c216-e32f-43a3-a122-ccbb697711fc
 # ╟─5b500acf-7029-43ff-9835-a26d8fe05194
 # ╟─4d281b64-f9fb-43c3-81de-54b4e7761d6e
@@ -4459,6 +4512,7 @@ version = "1.9.2+0"
 # ╟─ee656c24-6076-462a-9acb-da66628d61fb
 # ╟─39e45305-dd18-477f-a972-b60e8fc9d4ae
 # ╟─5df5d3ba-d6e8-4b8d-b7a9-008822a061ba
+# ╟─cb4dfdd2-a685-46ea-932f-7df1b1f0bc97
 # ╟─64360513-f68f-4ec0-b393-de147a4fa891
 # ╟─a198271a-9344-4751-a02f-cf64a80d7147
 # ╟─c26ee879-92b6-4d2b-819c-308db5e32ff4
@@ -4469,6 +4523,7 @@ version = "1.9.2+0"
 # ╟─75e14d8e-18bc-4fa8-8dcd-b6f5d1c51424
 # ╟─67dd55c1-9a5b-4b33-877b-e12192f9c645
 # ╟─74c1395f-a049-47ae-b9fe-4ed64e1debd1
+# ╟─c2bf647d-542c-47d8-87de-65a644eac516
 # ╟─1607c49f-2ece-402a-9abb-6304f96c1dca
 # ╟─3b857552-c6aa-44b2-8a56-6c2315bd9a51
 # ╟─6004c880-974c-4fb2-897e-b3a0add22508
