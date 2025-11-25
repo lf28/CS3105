@@ -489,7 +489,7 @@ md"""
 ## Bayesian prediction (cont.)
 
 
-#### Apply exact inference (sum-out nuisance ``\mathbf{w}``)
+### Apply exact inference (sum-out nuisance ``\mathbf{w}``)
 
 
 ```math
@@ -501,11 +501,11 @@ p(y_{test} &|\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n\}) \propto 
 ```
 
 
-#### Again it is a weighted average of all possible predictions
+### Again it is a weighted average of all possible predictions
 
-* ##### ensemble method: democratic and balanced
-* ##### we do not know the true ``\mathbf{w}``: we may as well just let every ``\mathbf{w} \in \mathbb{R}^m`` to predict then take average
-  * and the average is weighted by ``p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)``
+* #### ensemble method: democratic and balanced
+* #### we do not know the true ``\mathbf{w}``: we may as well just let every ``\mathbf{w} \in \mathbb{R}^m`` to predict then take average
+  * ##### and the average is weighted by ``p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)``
 """
 
 # ╔═╡ 6b9e37bb-bfb5-4d84-a896-cc454efabef3
@@ -517,7 +517,7 @@ Foldable("Skipped details", md"""
 \begin{align}
 p(y_{test} |\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) &\propto p(y_{test}, \mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \\
 &= \sum_{\mathbf{w}}p(\mathbf{w}, y_{test}, \mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \;\;\; \text{should've been integration}\\
-&= \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w}) \underbrace{p(\{y^{(i)}\}_{i=1}^n|\{\mathbf{x}^{(i)}\}_{i=1}^n \mathbf{w})p(\mathbf{w})}_{\propto p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}\\
+&= \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w}) \underbrace{p(\{y^{(i)}\}_{i=1}^n|\{\mathbf{x}^{(i)}\}_{i=1}^n, \mathbf{w})p(\mathbf{w})}_{\propto p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}\\
 &\propto \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)
 \end{align}
 ```
@@ -531,7 +531,7 @@ md"""
 
 
 ```math
-\begin{align}
+\large\begin{align}
 p(y_{test} &|\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \propto \sum_{\text{all possible }\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  {p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}
 \end{align}
 ```
@@ -540,6 +540,16 @@ p(y_{test} &|\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \propto \s
 * ##### below, we sample $\mathbf{w} \sim p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)$ and show their predictions $p(y_{test}|\mathbf{x}_{test}, \mathbf{w})$
 """
 
+# ╔═╡ 58a66c16-127e-48e6-9748-02614af69c3e
+aside(tip(md"""
+We can sample 
+
+$$\mathbf{w} \sim p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)$$
+
+by rejection sampling or more advanced algorithms like Metropolis sampling, which is beyond the scope of this course but will be covered in CS5016.
+	  	 
+"""))
+
 # ╔═╡ 4833a1a0-f7dc-4a78-aae1-711ca64b04e1
 md"""``\mathbf{w}\sim p(\mathbf{w}|\{y^{(i)}\})``$(@bind wi Slider(1000:50:2000)); show decision boundary: $(@bind show_w_db CheckBox());  """
 
@@ -547,7 +557,7 @@ md"""``\mathbf{w}\sim p(\mathbf{w}|\{y^{(i)}\})``$(@bind wi Slider(1000:50:2000)
 
 # ╔═╡ de7f04b8-0985-4aca-874a-36c0be0ba94a
 md"""
-show all: $(@bind show_all CheckBox());show decision boundaries: $(@bind show_all_db CheckBox()); show average: $(@bind show_average CheckBox()); change viewing angle $(@bind theta_ Slider(-180:180; default=58))"""
+show all: $(@bind show_all CheckBox());show decision boundaries: $(@bind show_all_db CheckBox()); show average: $(@bind show_average CheckBox())"""
 
 # ╔═╡ 5a27a4b5-b62c-47c3-b64e-c2231e30c9a8
 md"""
@@ -763,15 +773,15 @@ chain_array = mcmcLR';
 
 # ╔═╡ 7e4c6c05-16a3-4914-ab94-0730c965e424
 let
-	gr()
-	plt = scatter(D[targets .== 1, 2], D[targets .== 1, 3], ones(sum(targets .== 1)),  label="y=1", c=2)
-	scatter!(D[targets .== 0, 2], D[targets .== 0, 3], 0 *ones(sum(targets .== 0)), label="y=0", framestyle=:zerolines, c=1)
+	plotly()
+	plt = scatter(D[targets .== 1, 2], D[targets .== 1, 3], ones(sum(targets .== 1)),  label="y=1", c=2, m=2)
+	scatter!(D[targets .== 0, 2], D[targets .== 0, 3], 0 *ones(sum(targets .== 0)), label="y=0", framestyle=:zerolines, c = 1, m=2)
 	# w = linear_reg(D₂, targets_D₂;λ=0.0)
 	f̂(x, y, ww = ww_, b =0) = logistic(b + ww[1] * x + ww[2] * y)
 
 
 	b, w = chain_array[wi, 1], chain_array[wi, 2:3]
-	plot!(0:1:10, 0:1:10, (x,y) -> f̂(x, y, w, b), alpha =0.3, st=:surface, c=:jet, colorbar=false, camera=(theta_,20), xlabel=L"x_1", ylabel=L"x_2", xlim =(0,10), ylim = (0,10))
+	plot!(0:1:10, 0:1:10, (x,y) -> f̂(x, y, w, b), alpha =0.3, st=:surface, c=:jet, colorbar=false, camera=(8π,20), xlabel="x1", ylabel="x2", xlim =(0,10), ylim = (0,10))
 
 	w₀, w₁, w₂ = b, w[1], w[2]
 	x0s = 0:1:10
@@ -782,16 +792,17 @@ let
 		y0s = (- w₁ * x0s .- w₀) ./ w₂
 	end
 	if show_w_db
-		plot!(x0s, y0s, .5 * ones(length(x0s)), lc=:gray, lw=2, label="")
+		plot!(x0s, y0s, .5 * ones(length(x0s)), lc=:red, lw=3, label="")
 	
 	end
 
 	
 	
-	for (ci, i) in enumerate(500:100:2000)
+	for (ci, i) in enumerate(500:200:2000)
 		b, w = chain_array[i, 1], chain_array[i, 2:3]
 		if show_all
-			plot!(0:0.5:10, 0:.5:10, (x,y) -> f̂(x, y, w, b), alpha =0.15, st=:surface, c=:gray, colorbar=false)
+			alpha = show_average ? 0.2 : 0.5
+			plot!(0:0.5:10, 0:.5:10, (x,y) -> f̂(x, y, w, b), alpha =alpha, st=:surface, c=:jet, colorbar=false)
 		end
 		if show_all_db
 			w₀, w₁, w₂ = b, w[1], w[2]
@@ -803,7 +814,7 @@ let
 				y0s_ = (- w₁ * x0s .- w₀) ./ w₂
 			end
 		
-			plot!(x0s, y0s_, .5 * ones(length(x0s)), lc=ci, lw=1, label="")
+			plot!(x0s, y0s_, .5 * ones(length(x0s)), lc=ci, lw=3, label="")
 		end
 	end
 
@@ -814,7 +825,7 @@ let
 		ppf(x, y) = prediction(mcmcLR[:,1000:2000]', x, y)
 		# for (ci, i) in enumerate(1000:200:2000)
 			# b, w = chain_array[i, 1], chain_array[i, 2:3]
-		plot!(0:.5:10, 0:0.5:10, (x,y) -> ppf(x, y), alpha =0.25, st=:surface, c=:jet, colorbar=false)
+		plot!(0:.5:10, 0:0.5:10, (x,y) -> ppf(x, y), alpha =0.95, st=:surface, c=:jet, colorbar=false)
 		# end
 
 	end
@@ -2146,6 +2157,7 @@ version = "1.9.2+0"
 # ╟─f5424411-95f2-4eb7-ab5d-2341403aa2ec
 # ╟─6b9e37bb-bfb5-4d84-a896-cc454efabef3
 # ╟─3f322c41-5d87-4cbf-a3ec-6cb3cf25398a
+# ╟─58a66c16-127e-48e6-9748-02614af69c3e
 # ╟─4833a1a0-f7dc-4a78-aae1-711ca64b04e1
 # ╟─de7f04b8-0985-4aca-874a-36c0be0ba94a
 # ╟─7e4c6c05-16a3-4914-ab94-0730c965e424

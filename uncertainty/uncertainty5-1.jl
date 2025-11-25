@@ -1069,28 +1069,6 @@ md"""
 
 """
 
-# ╔═╡ e9e3d566-267c-4384-bb79-4336f82d220d
-md"""
-## 
-
-
-#### The **inputs**:
-* `Xs`: a list of variables to be enumerated, *e.g.* `Xs = [[0,1], [0,1], ...]`
-* `idx` = 1,2, ..., `length(Xs)`: current index of the variable to enumerate;
-* `assignment = [_, _, ..., _]`: assignments of `Xs`, e.g. a pre-allocated fix-sized array/dictionary to rewrite the combinations
-
-
-"""
-
-# ╔═╡ 28b07cb5-9043-4118-9421-4dd40f270ebc
-md"""
-
-## Demonstration
-"""
-
-# ╔═╡ f17bc87d-129e-4b45-bbe3-f97fcfaaa98d
-md"Show backtrack tree: $(@bind show_tree CheckBox(default=false))"
-
 # ╔═╡ c212283d-04c5-45ba-a44a-fcbcdf8f67a7
 # md"""
 # ```julia
@@ -1112,10 +1090,41 @@ md"Show backtrack tree: $(@bind show_tree CheckBox(default=false))"
 # ```
 # """
 
+# ╔═╡ e9e3d566-267c-4384-bb79-4336f82d220d
+# md"""
+# ## 
+
+
+# #### The **inputs**:
+# * `Xs`: a list of variables to be enumerated, *e.g.* `Xs = [[0,1], [0,1], ...]`
+# * `idx` = 1,2, ..., `length(Xs)`: current index of the variable to enumerate;
+# * `assignment = [_, _, ..., _]`: assignments of `Xs`, e.g. a pre-allocated fix-sized array/dictionary to rewrite the combinations
+
+
+# """
+
+# ╔═╡ 28b07cb5-9043-4118-9421-4dd40f270ebc
+md"""
+
+## Demonstration
+"""
+
+# ╔═╡ f17bc87d-129e-4b45-bbe3-f97fcfaaa98d
+md"Show backtrack tree: $(@bind show_tree CheckBox(default=false))"
+
 # ╔═╡ f9b519e0-968a-4cdf-b5b2-6d81ae88b489
+"""
+Enumerate all combinations of variables in Xs by backtracking
+
+#### Arguments
+- `Xs::List`: a list of variables' domains, e.g. [[0,1], [0,1],[0,1]]
+- `cur_idx::Int`: the current index ranging from 1 to `length(Xs)`
+- `storage::Array`: a pre-allocated array to store the assignment
+"""
 function enum_all(Xs, cur_idx, storage)
 	if cur_idx > length(Xs)
-		println(storage)	# or compute something interesting with the combination
+		# println(storage)	
+		@info storage # or compute something interesting with the combination
 	else
 		for v in Xs[cur_idx]
 			storage[cur_idx] = v
@@ -1126,14 +1135,15 @@ end
 
 # ╔═╡ e4aa35a5-cc15-4347-b45a-333fad211ca4
 begin
-	num_of_vars = 4
+	num_of_vars = 3
 	num_of_choices = 0:1
 	Xs = [num_of_choices for _ in 1:num_of_vars]
 	# Xs = [0:1, 1:3]
+	# Xs = [[:🍕, :🍎, :🍔], [:🐱, :🐶, :🐔], [:🌴, :🌻]]
 end;
 
 # ╔═╡ 35a1d725-af18-4c58-ba54-fca609606986
-enum_all(Xs, 1, Array{Int}(undef, length(Xs)))
+enum_all(Xs, 1, Array{Any}(undef, length(Xs)))
 
 # ╔═╡ d9691606-30f7-4dbb-a0da-7a434c36838e
 let
@@ -1153,7 +1163,7 @@ let
 	if show_tree
 		graph = []
 		names = [[]]
-		enum_all_with_tree!(Xs, 1, Array{Int}(undef, length(Xs)), graph, names)
+		enum_all_with_tree!(Xs, 1, Array{Any}(undef, length(Xs)), graph, names)
 		name_dict = Dict()
 		names_strings = String[]
 		for (i, n) in enumerate(names)
@@ -2228,10 +2238,10 @@ version = "17.5.0+2"
 # ╟─c3110f09-d152-4bf6-a08f-d6dd79538805
 # ╟─0d163494-7c51-44bc-865b-436b0f3c6259
 # ╟─14505638-8a59-4a8d-9799-ef86ea306e8d
+# ╟─c212283d-04c5-45ba-a44a-fcbcdf8f67a7
 # ╟─e9e3d566-267c-4384-bb79-4336f82d220d
 # ╟─28b07cb5-9043-4118-9421-4dd40f270ebc
 # ╟─f17bc87d-129e-4b45-bbe3-f97fcfaaa98d
-# ╟─c212283d-04c5-45ba-a44a-fcbcdf8f67a7
 # ╠═f9b519e0-968a-4cdf-b5b2-6d81ae88b489
 # ╠═e4aa35a5-cc15-4347-b45a-333fad211ca4
 # ╠═35a1d725-af18-4c58-ba54-fca609606986
