@@ -1124,23 +1124,14 @@ md"""
 S \Rightarrow {d_1, d_2, \ldots, d_n}
 ```
 
-* assume knowing ``S\in \{1,2,\ldots, n-1\}`` 
-
-* the likelihood ``P(\mathcal{D}|S)`` is ? 
+* #### assume knowing ``S\in \{1,2,\ldots, n-1\}`` 
 
 
 
-
-"""
-
-# ╔═╡ 64899331-8f6e-45af-a52d-1dbad94e75ad
-md"""
-## Forward generative modelling: Prior for P(S)
+* #### the likelihood function ``P(\mathcal{D}|S)`` is ? 
 
 
-#### To reflect our ignorance, we use a uniform flat prior
 
-$$\Large P(S=s) = \frac{1}{n-1}; \; \text{for }s \in \{1,2,\ldots, n-1\}$$
 
 """
 
@@ -1181,14 +1172,6 @@ $$P(\{0,1,1,0,1,0,0\}|S=2) = \underbrace{0.5\cdot 0.5}_{\text{before switch: }\{
 # ╔═╡ 074454ba-93fe-4708-952f-0107c4ed43fd
 𝒟 = [0,1,1,0,1,0,0];
 
-# ╔═╡ 01aaa24f-cf69-41cb-96cf-c88565f8ec75
-begin
-	 # to type 𝒟, type "\scrD"+ "tab"
-	n1 = length(𝒟)-1
-	Plots.plot(1:n1, 1/n1 * ones(n1), st=:sticks, color=1,marker=:circle, label="", ylim=[0,1.0], xlabel=L"S", title=L"P(S)")
-	Plots.plot!(1:n1, 1/n1 * ones(n1),  st=:path, fill=true, color=1, alpha= 0.3,  label="Prior")
-end
-
 # ╔═╡ cfd53aa2-581d-4d4f-86d3-b901db8722e6
 function ℓ_switch(D, p₁=0.5, p₂=0.2)
 	likes = zeros(length(D)-1)
@@ -1204,6 +1187,25 @@ end;
 # ╔═╡ 9b7c6644-7dbd-4c21-8b30-1b08cbdaad3f
 begin
 	Plots.plot(1:length(𝒟)-1, ℓ_switch(𝒟)[1], xlabel="switch point: "*L"S", ylabel=L"p(\mathcal{D}|S)", title="Likelihood "*L"p(\mathcal{D}|S)", st=:sticks, marker=:circle, label="", framestyle=:semi)
+end
+
+# ╔═╡ 64899331-8f6e-45af-a52d-1dbad94e75ad
+md"""
+## Forward generative modelling: Prior for P(S)
+
+
+#### To reflect our ignorance, we use a uniform flat prior
+
+$$\Large P(S=s) = \frac{1}{n-1}; \; \text{for }s \in \{1,2,\ldots, n-1\}$$
+
+"""
+
+# ╔═╡ 01aaa24f-cf69-41cb-96cf-c88565f8ec75
+begin
+	 # to type 𝒟, type "\scrD"+ "tab"
+	n1 = length(𝒟)-1
+	Plots.plot(1:n1, 1/n1 * ones(n1), st=:sticks, color=1,marker=:circle, label="", ylim=[0,1.0], xlabel=L"S", title=L"P(S)")
+	Plots.plot!(1:n1, 1/n1 * ones(n1),  st=:path, fill=true, color=1, alpha= 0.3,  label="Prior")
 end
 
 # ╔═╡ dace495d-1a28-495c-908d-1284cd24c244
@@ -1243,7 +1245,7 @@ md"""
 """
 
 # ╔═╡ 9298becb-7b6c-47e0-886e-7ed7835697d3
-𝒟₂ = [0,1,1,0,1, 0, 0, 0]
+𝒟₂ = [0, 1, 1, 0, 1, 0, 0, 1,0,0,0,0,1, 0,0]
 
 # ╔═╡ 6baf37c3-4aa4-4d5d-8c09-addde10a7bc0
 begin
@@ -2498,9 +2500,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "311349fd1c93a31f783f977a71e8b062a57d4101"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.13"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2891,13 +2893,13 @@ version = "1.9.2+0"
 # ╟─4a5fa827-9d63-4f8d-b332-41b2c8ba69b4
 # ╟─34d7cd64-8675-416f-bd95-731010049757
 # ╟─17658381-a90e-4f03-8642-1bfa163f8524
-# ╟─64899331-8f6e-45af-a52d-1dbad94e75ad
-# ╟─01aaa24f-cf69-41cb-96cf-c88565f8ec75
 # ╟─b4c64497-b498-470c-a037-4e24a59004e5
 # ╟─983fcee3-4e6a-42db-93e4-c535fcbdefa4
 # ╟─074454ba-93fe-4708-952f-0107c4ed43fd
 # ╟─9b7c6644-7dbd-4c21-8b30-1b08cbdaad3f
 # ╟─cfd53aa2-581d-4d4f-86d3-b901db8722e6
+# ╟─64899331-8f6e-45af-a52d-1dbad94e75ad
+# ╟─01aaa24f-cf69-41cb-96cf-c88565f8ec75
 # ╟─dace495d-1a28-495c-908d-1284cd24c244
 # ╟─37425e65-bb8d-4729-bbd1-1bd401a00772
 # ╟─a59575a0-0d51-4100-be37-29cc81b9ee3a

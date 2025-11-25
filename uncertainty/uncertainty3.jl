@@ -111,7 +111,7 @@ html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/cough_bn.png"
 md"""
 
 
-## Bayesian networks: big pictures
+## Bayesian networks: big picture
 
 ### Bayes' nets: 
 
@@ -174,7 +174,7 @@ md"""
 
 ## Digress: graph 
 
-#### *Graph* is a data structure consists of: $$G = \{V, E\}$$
+#### *Graph* is a data structure: $$G = \{V, E\}$$
 
   * ##### a set of *vertices* $V=\{X, Y, Z\}$
 
@@ -191,12 +191,12 @@ md"""
 
 ## Digress: directed graphs
 
-#### A *directed* graph is a a graph with *directed* edges, i.e. the edges are **ordered** pairs
+#### A *directed* graph is a a graph with *directed* edges, _i.e._ the edges are **ordered** pairs
 
   * ##### direction matters: $(X, Y)$ are not the same as $(Y, X)$
 
 
-  * ##### asymmetric relationship: parent-to-child relationship (the reverse is not true)
+  * ##### asymmetric relationship, _i.e._ the reverse may not be true
     
 \
 
@@ -267,11 +267,14 @@ md"""
 # ╔═╡ 8c2b2590-c90a-4e84-b76c-15bda3b211ea
 TwoColumn(
 md"""
-\
+
 
 #### For example, the cough example
+\
 
-#### A directed acyclic graph (DAG)
+
+	
+#### Recall that 
   * #### *node*: random variables 
   * #### *edges*: relationship between random variable
 
@@ -387,7 +390,7 @@ md"""
 * #### no arrows at all
   * independent coin tosses
 
-* #### and CPFs are 
+* #### and CPFs are the same
   * assume the coin is fair
 
 
@@ -438,7 +441,7 @@ md"""
 
 !!! important "Factoring property"
 	
-	$\large P(X_1, X_2,\ldots, X_n) = \prod_{i=1}^n P(X_i|\text{parent}(X_i))$
+	$\Large P(X_1, X_2,\ldots, X_n) = \prod_{i=1}^n P(X_i|\text{parent}(X_i))$
 
 
 
@@ -630,7 +633,7 @@ md"""
 md"""
 
 
-#### ``X, Z`` marginally _dependent_
+#### ``X, Z`` marginally _**dependent**_
 
 ```math
 \Large 
@@ -733,7 +736,7 @@ md"""
 
 
 * ##### also known as tail to tail (from ``Y``'s perspective)
-* ##### *e.g.* coin choice is the common cause of the two tosses
+
 """
 
 # ╔═╡ 4fc48483-c0e9-417b-a2c8-b7aa0e961173
@@ -797,7 +800,7 @@ TwoColumn(md"""
 
 \
 
-##### ``X, Z`` marginally _dependent_
+#### ``X, Z`` marginally _**dependent**_
 
 ```math
 \large 
@@ -847,7 +850,7 @@ TwoColumnWideLeft(
 md"""
 \
 
-##### ``X, Z`` conditionally *independent* given ``Y``
+##### ``X, Z`` conditionally _**independent**_ given ``Y``
 
 ```math
 \large
@@ -967,8 +970,10 @@ X {\leftrightarrow} Z\,|\,Y
 \Large
  \;\; \text{or}\;\;P(X,Z|Y) \neq P(X|Y)P(Z|Y)
 ```
-* #### known as **explain away**
-* #### not *causal* relationship but just *correlation*
+* ##### known as **explain away**
+
+	
+* ##### not *causal* relationship but just *correlation*
 """	
 ,
 
