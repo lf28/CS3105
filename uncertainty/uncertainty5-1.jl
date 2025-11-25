@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.20
+# v0.20.21
 
 using Markdown
 using InteractiveUtils
@@ -210,6 +210,47 @@ html"""<br><br><br><br><center><img src="https://leo.host.cs.st-andrews.ac.uk/fi
 # ╔═╡ ee52fb06-eeb7-481b-b330-4099a4205d0e
 # html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/figs4CS5010/burglar.png" width = "300"/></center>"""
 
+# ╔═╡ dbe7ace2-f9be-44ad-aff6-3c10fc9861d9
+md"""
+
+## The inference formula
+
+
+!!! information ""
+	#### Given a BN and query ``P(Q|\mathcal{E}=\mathbf{e})``:
+	```math
+	\Large \begin{align}
+	P(Q|\mathcal{E}=\mathbf{e}) \\
+
+	\end{align}
+	```
+	* #### ``Q``: query random variable 
+	* #### ``\mathcal{E}``: conditioned evidence 
+
+"""
+
+# ╔═╡ 1eb5e94d-414a-4a90-bdfa-cf14e02150dd
+md"""
+
+## The inference formula
+
+
+!!! information ""
+	#### Given a BN and query ``P(Q|\mathcal{E}=\mathbf{e})``:
+	```math
+	\Large \begin{align}
+	P(Q|\mathcal{E}=\mathbf{e}) &\propto P(Q, \mathcal{E}=\mathbf{e}) \\
+	&= \sum_{n_1}\ldots \sum_{n_k} P(Q, \mathcal{E}=\mathbf{e}, n_1, n_2\ldots n_k)
+	\end{align}
+
+
+	```
+	* #### ``Q``: query random variable 
+	* #### ``\mathcal{E}``: conditioned evidence 
+	* #### ``\{n_1, n_2, \ldots, n_k\}``: nuisance (or hidden) random variables
+
+"""
+
 # ╔═╡ f70b2cbb-5575-49f6-8ecf-aff40d5479c2
 md"""
 
@@ -229,7 +270,26 @@ md"""
 	```
 	* #### ``Q``: query random variable 
 	* #### ``\mathcal{E}``: conditioned evidence 
-	* #### ``\mathcal{N}``: nuisance (or hidden) random variables
+	* #### ``\{n_1, n_2, \ldots, n_k\}``: nuisance (or hidden) random variables
+
+"""
+
+# ╔═╡ ddfb8066-258d-43e7-b024-600d3df08c35
+md"""
+
+## An example 
+
+#### Let's consider 
+
+
+$\Large P(J|+b, -e)$
+
+
+!!! question ""
+	#### *By conditional probability definition*
+	```math
+	\large P(J|+b, -e) = \frac{P(J, +b, -e)}{P(+b, -e)} = \frac{P(J, +b, -e)}{P(+j, +b, -e) + P(-j, +b, -e)}
+	```
 
 """
 
@@ -250,7 +310,7 @@ $\Large P(J|+b, -e)$
 	\large P(J|+b, -e) = \frac{P(J, +b, -e)}{P(+b, -e)} = \frac{P(J, +b, -e)}{P(+j, +b, -e) + P(-j, +b, -e)}
 	```
 
-#### Note that the denominator (sum rule) is a **normalising constant**:
+#### Note that the denominator (due to sum rule) is a **normalising constant**
 
 ```math
 \large P(+b, -e) = P(+j, +b, -e) + P(-j, +b, -e)\tag{sum rule}
@@ -266,7 +326,7 @@ $\Large P(J|+b, -e)$
 
 	$$\Large P(J|+b, -e) \propto P(J, +b, -e)$$ 
 
-	#### or 
+	#### or equivalently
 	
 	$$\Large P(J|+b, -e) =\alpha P(J, +b, -e)$$ 
 	* ##### where ``\alpha = \frac{1}{P(+b, -e)}`` is the normalising constant's inverse
@@ -303,6 +363,86 @@ md"""
 	&= \alpha \sum_{a'}\sum_{m'} P(+b,-e,a',J,m')\;\;\;\textcolor{red}{\text{sum rule}}\\
 	\Aboxed{&=\alpha \sum_{a'}\sum_{m'} P(+b)P(-e)P(a'|+b,-e)P(J|a')P(m'|a')\;\;\;\textcolor{blue}{\normalsize\text{factor property}}} 
 	\end{align}$$
+
+"""
+
+# ╔═╡ b68f0f17-9d28-4b90-a519-c76853098976
+md"""
+
+
+## Further details
+
+#### As a concrete example, to find, *e.g.*
+
+$\large P(J|+b, -e)$
+
+
+#### For $J=+j$ : 
+
+$$\begin{align}
+P(J&=+j|+b,-e) = \alpha \sum_{a'}\sum_{m'}P(+b)P(-e)P(a'|+b,-e)P( +j|a')P(m'|a')\\
+&= \alpha\times (+)\begin{cases}
+P(+b)P(-e)P(-a|+b,-e)P(+j|-a)P(-m |-a) & a'=-, m'=- \\
+P(+b)P(-e)P(-a |+b,-e)P(+j|-a )P(+m|-a ) & a'=-, m'=+ \\
+P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(-m|+a)& a'=+, m'=- \\
+P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(+m|+a) & a'=+, m'=+ 
+\end{cases} \\
+&= \alpha\times (+)\begin{cases}
+0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times (1-0.01) & a'=-, m'=- \\
+0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times 0.01 & a'=-, m'=+ \\
+0.001 \times (1-0.002) \times 0.94 \times 0.9 \times (1-0.7) & a'=+, m'=- \\
+0.001 \times (1-0.002) \times 0.94 \times 0.9 \times 0.7 & a'=+, m'=+ 
+\end{cases} \\
+&=\alpha \times 0.00847302
+\end{align}$$
+
+
+
+"""
+
+# ╔═╡ 83f2d335-2df3-411e-a85a-48a37755120c
+md"""
+
+
+## Further details
+
+#### As a concrete example, to find, *e.g.*
+
+$\large P(J|+b, -e)$
+
+
+#### For $J=+j$ : 
+
+$$\begin{align}
+P(J&=+j|+b,-e) = \alpha \sum_{a'}\sum_{m'}P(+b)P(-e)P(a'|+b,-e)P( +j|a')P(m'|a')\\
+&= \alpha\times (+)\begin{cases}
+P(+b)P(-e)P(-a|+b,-e)P(+j|-a)P(-m |-a) & a'=-, m'=- \\
+P(+b)P(-e)P(-a |+b,-e)P(+j|-a )P(+m|-a ) & a'=-, m'=+ \\
+P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(-m|+a)& a'=+, m'=- \\
+P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(+m|+a) & a'=+, m'=+ 
+\end{cases} \\
+&= \alpha\times (+)\begin{cases}
+0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times (1-0.01) & a'=-, m'=- \\
+0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times 0.01 & a'=-, m'=+ \\
+0.001 \times (1-0.002) \times 0.94 \times 0.9 \times (1-0.7) & a'=+, m'=- \\
+0.001 \times (1-0.002) \times 0.94 \times 0.9 \times 0.7 & a'=+, m'=+ 
+\end{cases} \\
+&=\alpha \times 0.00847302
+\end{align}$$
+
+#### For $J=-j$ : 
+
+$$\begin{align}
+P(J&= -j|+b, -e) = \alpha \sum_{a'}\sum_{m'}P(+b)P(-e)P(a'|+b,-e)P(-j|a')P(m'|a')\\
+&= \alpha\times (+)\begin{cases}
+\ldots & a'=-, m'=- \\
+\ldots & a'=-, m'=+ \\
+\ldots & a'=+, m'=- \\
+\ldots & a'=+, m'=+
+\end{cases} \\
+&= \alpha \times 0.0001507
+
+\end{align}$$
 
 """
 
@@ -468,7 +608,7 @@ md"""
 
 #### We can improve the algorithm a little bit
 
-* ##### reducing some floating number multiplications
+* ##### by removing some floating number multiplications
 
 
 * ##### based on distribution law
@@ -485,11 +625,11 @@ md"""
 
 $\Large \sum_{i=1}^n ax_i =ax_1 + a x_2 + \ldots + ax_n= a\left (\sum_{i=1}^n x_i\right )$
 
-* ##### when ``a`` is a common factor, 
+* ##### when ``a`` is a common constant factor, 
   * it can be taken out or equivalently pushing summation $\,\Sigma_{\cdot}\,$ inwards
 \
 
-* ##### it saves some floating multiplication operations (why)
+* ##### it saves some floating multiplication operations 
   * remember floating number ``\times`` is more expensive than ``+/-``
 
 
@@ -650,7 +790,7 @@ md"""
 
 
 
-#### So far, we have computed by hand
+#### So far, we have computed everything by hand
 \
 
 #### _How to implement it_?
@@ -902,32 +1042,43 @@ md"""
 # ╔═╡ 0d163494-7c51-44bc-865b-436b0f3c6259
 html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/back_track.png" width = "650"/></center>"""
 
+# ╔═╡ 14505638-8a59-4a8d-9799-ef86ea306e8d
+md"""
+
+#### `ENUM_ALL`
+-----
+**function** ``\texttt{ENUM\_ALL}````(````\texttt{Xs}``, ``\texttt{idx}``, ``\texttt{assignment}````)``
+
+``\;\;`` **if** ``\texttt{idx} > \texttt{length}(\texttt{Xs})`` **then return**
+
+
+``\;\;`` **for** ``x \in \texttt{Xs}[\texttt{idx}]``
+
+
+``\;\;\;\;\;\;`` ``\texttt{assignment} \leftarrow \texttt{assignment}\;\cup\; \{X_{\texttt{idx}}=x\} ``
+
+``\;\;\;\;\;\;`` ``\texttt{ENUM\_ALL}(\texttt{Xs}, \texttt{idx}+1, \texttt{assignment})``
+
+
+``\;\;`` **end**
+
+**end**
+
+-----
+
+
+"""
+
 # ╔═╡ e9e3d566-267c-4384-bb79-4336f82d220d
 md"""
 ## 
+
+
 #### The **inputs**:
-
-* `cur_idx` = 1,2, ..., `length(Xs)`: current index of the variable to enumerate;
 * `Xs`: a list of variables to be enumerated, *e.g.* `Xs = [[0,1], [0,1], ...]`
-* `storage = [_, _, ..., _]`: a pre-allocated fix-sized array to rewrite the combinations
+* `idx` = 1,2, ..., `length(Xs)`: current index of the variable to enumerate;
+* `assignment = [_, _, ..., _]`: assignments of `Xs`, e.g. a pre-allocated fix-sized array/dictionary to rewrite the combinations
 
-```julia
-function enum_all(cur_idx, Xs, storage = [...])
-	# base case, when the storage is full
-	if cur_idx > length(Xs)
-		println(tape) # or do some computation
-	else
-		for each x in Xs[cur_idx]
-			# fill the tape at cur_idx
-			storage[cur_idx] = x
-			# move on to the next variable recursively
-			enum_all(cur_idx + 1, Xs, storage)
-		end
-	end
-end
-
-
-```
 
 """
 
@@ -939,6 +1090,27 @@ md"""
 
 # ╔═╡ f17bc87d-129e-4b45-bbe3-f97fcfaaa98d
 md"Show backtrack tree: $(@bind show_tree CheckBox(default=false))"
+
+# ╔═╡ c212283d-04c5-45ba-a44a-fcbcdf8f67a7
+# md"""
+# ```julia
+# function enum_all(cur_idx, Xs, storage = [...])
+# 	# base case, when the storage is full
+# 	if cur_idx > length(Xs)
+# 		println(tape) # or do some computation
+# 	else
+# 		for each x in Xs[cur_idx]
+# 			# fill the tape at cur_idx
+# 			storage[cur_idx] = x
+# 			# move on to the next variable recursively
+# 			enum_all(cur_idx + 1, Xs, storage)
+# 		end
+# 	end
+# end
+
+
+# ```
+# """
 
 # ╔═╡ f9b519e0-968a-4cdf-b5b2-6d81ae88b489
 function enum_all(Xs, cur_idx, storage)
@@ -1136,6 +1308,8 @@ md"""
 $$\Large\begin{align}P(b|j,m)
 &\propto P(b)\sum_{e'}P(e')\sum_{a'} P(a'|b,e')P(j|a')P(m|a')\end{align}$$
 
+
+* the following is the call tree for $b= +b$
 """
 
 # ╔═╡ 4fb87b71-5e47-4183-92af-7b20b6436efa
@@ -2018,10 +2192,15 @@ version = "17.5.0+2"
 # ╟─543a9a65-29ea-486e-b51f-9c5a7c4a0656
 # ╟─8af7d7a2-0d16-43ef-9bb4-5ab12b0cfdef
 # ╟─ee52fb06-eeb7-481b-b330-4099a4205d0e
+# ╟─dbe7ace2-f9be-44ad-aff6-3c10fc9861d9
+# ╟─1eb5e94d-414a-4a90-bdfa-cf14e02150dd
 # ╟─f70b2cbb-5575-49f6-8ecf-aff40d5479c2
+# ╟─ddfb8066-258d-43e7-b024-600d3df08c35
 # ╟─f9053f31-663c-4b12-a4b2-768f64f271e1
 # ╟─c321eeee-2a4b-45a3-a40e-3a32aaa35cd8
 # ╟─e9f05552-2173-4d73-897c-71ee41b746d2
+# ╟─b68f0f17-9d28-4b90-a519-c76853098976
+# ╟─83f2d335-2df3-411e-a85a-48a37755120c
 # ╟─d292ee9c-49d9-443a-ae64-42e485ed7825
 # ╟─2b828f8f-1e1a-4ac0-b4d6-c8e2ef64adba
 # ╟─366d22ca-e42d-48fb-8292-b7a5f8335ffe
@@ -2048,10 +2227,12 @@ version = "17.5.0+2"
 # ╟─029e24d2-8524-4d3e-b6af-0dc76411965c
 # ╟─c3110f09-d152-4bf6-a08f-d6dd79538805
 # ╟─0d163494-7c51-44bc-865b-436b0f3c6259
+# ╟─14505638-8a59-4a8d-9799-ef86ea306e8d
 # ╟─e9e3d566-267c-4384-bb79-4336f82d220d
 # ╟─28b07cb5-9043-4118-9421-4dd40f270ebc
 # ╟─f17bc87d-129e-4b45-bbe3-f97fcfaaa98d
-# ╟─f9b519e0-968a-4cdf-b5b2-6d81ae88b489
+# ╟─c212283d-04c5-45ba-a44a-fcbcdf8f67a7
+# ╠═f9b519e0-968a-4cdf-b5b2-6d81ae88b489
 # ╠═e4aa35a5-cc15-4347-b45a-333fad211ca4
 # ╠═35a1d725-af18-4c58-ba54-fca609606986
 # ╟─9428adb1-48f6-49d1-9961-2fd7e95127ce

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.20
+# v0.20.21
 
 using Markdown
 using InteractiveUtils
@@ -480,7 +480,7 @@ TwoColumn(md"""
 
 #### And compute preditive distribution 
 
-$\Large p(y_{test}|\{y^{(i)}\}_{i=1}^n, \mathbf{x}_{test})$
+$\Large p(y_{test}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n, \mathbf{x}_{test})$
 """, html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/logistic_pred.png' width = '200' /></center>")
 
 # ╔═╡ f5424411-95f2-4eb7-ab5d-2341403aa2ec
@@ -494,9 +494,9 @@ md"""
 
 ```math
 \Large \begin{align}
-p(y_{test} &|\mathbf{x}_{test}, \{y^{(i)}\}_{i=1}^n) \propto p(y_{test}, \mathbf{x}_{test}, \{y^{(i)}\}_{i=1}^n) \\
+p(y_{test} &|\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n\}) \propto p(y_{test}, \mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \\
 &\;\;\;\;\;\; \;\;\;\;\;\; \;\;\;\;\;\; \;\;\;\;\;\; \;\; \vdots \\
-&= \sum_{\text{all possible }\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  \underbrace{p(\mathbf{w}|\{y^{(i)}\}_{i=1}^n)}_{\text{the weight}}
+&= \sum_{\text{all possible }\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  \underbrace{p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}_{\text{the weight}}
 \end{align}
 ```
 
@@ -505,7 +505,7 @@ p(y_{test} &|\mathbf{x}_{test}, \{y^{(i)}\}_{i=1}^n) \propto p(y_{test}, \mathbf
 
 * ##### ensemble method: democratic and balanced
 * ##### we do not know the true ``\mathbf{w}``: we may as well just let every ``\mathbf{w} \in \mathbb{R}^m`` to predict then take average
-  * and the average is weighted by ``p(\mathbf{w}|\mathbf{y})``
+  * and the average is weighted by ``p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)``
 """
 
 # ╔═╡ 6b9e37bb-bfb5-4d84-a896-cc454efabef3
@@ -515,15 +515,13 @@ Foldable("Skipped details", md"""
 
 ```math
 \begin{align}
-p(y_{test} |\mathbf{x}_{test}, \mathbf{y}) &\propto p(y_{test}, \mathbf{x}_{test}, \mathbf{y}) \\
-&= \sum_{\mathbf{w}}p(\mathbf{w}, y_{test}, \mathbf{x}_{test}, \mathbf{y}) \;\;\; \text{should've really been integration}\\
-&= \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w}) \underbrace{p(\mathbf{y}| \mathbf{w})p(\mathbf{w})}_{\propto p(\mathbf{w}|\mathbf{y})}\\
-&\propto \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  p(\mathbf{w}|\mathbf{y})
+p(y_{test} |\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) &\propto p(y_{test}, \mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \\
+&= \sum_{\mathbf{w}}p(\mathbf{w}, y_{test}, \mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \;\;\; \text{should've been integration}\\
+&= \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w}) \underbrace{p(\{y^{(i)}\}_{i=1}^n|\{\mathbf{x}^{(i)}\}_{i=1}^n \mathbf{w})p(\mathbf{w})}_{\propto p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}\\
+&\propto \sum_{\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)
 \end{align}
 ```
 
-
-* ``\mathbf{y} = \{y^{(i)}\}_{i=1}^n``
 """)
 
 # ╔═╡ 3f322c41-5d87-4cbf-a3ec-6cb3cf25398a
@@ -534,12 +532,12 @@ md"""
 
 ```math
 \begin{align}
-p(y_{test} &|\mathbf{x}_{test}, \{y^{(i)}\}_{i=1}^n) \propto \sum_{\text{all possible }\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  {p(\mathbf{w}|\{y^{(i)}\}_{i=1}^n)}
+p(y_{test} &|\mathbf{x}_{test}, \{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n) \propto \sum_{\text{all possible }\mathbf{w}} p(y_{test}|\mathbf{x}_{test}, \mathbf{w})  {p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)}
 \end{align}
 ```
 
 
-* ##### below, we sample $\mathbf{w} \sim p(\mathbf{w}|\{y^{(i)}\}_{i=1}^n)$ and show their predictions $p(y_{test}|\mathbf{x}_{test}, \mathbf{w})$
+* ##### below, we sample $\mathbf{w} \sim p(\mathbf{w}|\{\mathbf{x}^{(i)},y^{(i)}\}_{i=1}^n)$ and show their predictions $p(y_{test}|\mathbf{x}_{test}, \mathbf{w})$
 """
 
 # ╔═╡ 4833a1a0-f7dc-4a78-aae1-711ca64b04e1
