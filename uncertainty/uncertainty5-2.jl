@@ -19,7 +19,7 @@ end
 # ╔═╡ c9cfb450-3e8b-11ed-39c2-cd1b7df7ca01
 begin
 	using PlutoTeachingTools
-	# using PlutoUI
+	using PlutoUI
 	using Distributions, LinearAlgebra
 	# using StatsPlots
 	using LogExpFunctions
@@ -30,24 +30,33 @@ begin
 	using Latexify
 	using Random
 	# using Dagitty
-	using PlutoUI
+	# using PlutoUI
 
-	using Plots; default(fontfamily="Computer Modern", framestyle=:box) # LaTex-style
+	using Plots; Plots.default(fontfamily="Computer Modern", framestyle=:box) # LaTex-style
 	
 end
 
-# ╔═╡ b26dd8ed-bae2-4454-af53-31711fad8605
-begin
-	# using TikzGraphs
-	# using Graphs
-	using TikzPictures # this is required for saving
-end;
+# ╔═╡ 1c626053-7907-4636-bcac-494f696c4f4b
+# begin
+# 	using TikzGraphs
+# 	using Graphs
+# 	using TikzPictures # this is required for saving
+# end;
 
-# ╔═╡ 56013389-2242-4f23-b272-558fcdecd3b1
-begin
-	using TikzGraphs
-	using Graphs
-end
+# ╔═╡ 1e916f0b-d8ef-476a-8702-4e7934830eb0
+# using Plots;Plots.default(fontfamily="Computer Modern", framestyle=:box)
+
+# ╔═╡ 9b38bfda-c39f-4ac7-8e6c-a264d117eb81
+# begin
+
+# 	using PlutoTeachingTools
+# 	using PlutoUI
+# 	using Random
+# 	using LinearAlgebra, LogExpFunctions, Distributions
+# end
+
+# ╔═╡ 60c3a104-3761-4079-8704-4642885ab956
+# Plots.plot(1:10)
 
 # ╔═╡ cf07faa6-e571-4c79-9dd2-f03041b99706
 TableOfContents()
@@ -72,1094 +81,6 @@ Lei Fang(@lf28 $(Resource("https://raw.githubusercontent.com/edent/SuperTinyIcon
 *School of Computer Science*
 
 *University of St Andrews, UK*
-
-"""
-
-# ╔═╡ 35494406-218b-41cd-b3af-6ba07d45d935
-md"""
-
-# Probabilistic inference algorithm
-\
-
-### Exact inference algorithm
-"""
-
-# ╔═╡ 9179c13b-1cc4-4ec6-91f2-aaed6a312ee9
-md"""
-
-## Recep: Bayes' net
-
-"""
-
-# ╔═╡ e67e822d-25c6-44a7-8ae2-13f42534d70b
-TwoColumnWideRight(md"""
-#### Bayes' net 
-
-$\Large \text{bn} = \{G, \{P\}\}$
-
-* ##### ``G``: _a DAG_
- 
-
-
-* ##### CPTs: for each node ``\large P(X_i|\text{parent}(X_i))`` 
-
-
-""", html""" <center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/figs4CS5010/burglarCPTs.png" width = "700"/></center>
-""")
-
-# ╔═╡ eac84f66-a017-436e-b3a0-30a32677179e
-md"""
-
-## Recap: factoring property
-
-"""
-
-# ╔═╡ ed09a8e6-6b8f-415d-84f2-bcaed9d32558
-md"""
-
-!!! important "Factoring property"
-	$\Large P(X_1, X_2,\ldots, X_n) = \prod_{i=1}^n P(X_i|\text{parent}(X_i))$
-	
-"""
-
-# ╔═╡ 4f58814a-e990-445c-b959-f92d9aac1fe9
-TwoColumnWideRight(md"""
-
-\
-
-
-#### Example
-
-```math
-\begin{align}
-P&(B,E,A,J,M) = \\
-&P(B)P(E) P(A|B, E)P(J|A)P(M|A)
-
-\end{align}
-```
-
-""", html""" <center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/figs4CS5010/burglarCPTs.png" width = "700"/></center>
-""")
-
-# ╔═╡ 1769f7b4-4212-487a-bad3-bfaa3bf7026c
-md"""
-
-## Probabilistic inference 
-
-!!! infor "Probabilistic Inference"
-	```math
-	\Large P(Q|E_1=e_1, E_2= e_2, \ldots, E_k= e_k)
-	```
-	\
-
-	* #### ``Q``: **query** random variable
-	* #### ``E_i``: **evidence** or _observed_ (evidence can be empty) 
-    * #### ``N_i``: all the others: **nuisance** random variables 
-"""
-
-# ╔═╡ 89be5e5a-76e6-446a-aa7a-00d0cccd0c33
-md"""
-
-## Some inference examples
-
-
-
-"""
-
-# ╔═╡ 5d45e5db-6b95-48c0-8471-c062c38aab2b
-TwoColumnWideLeft(
-
-md"""
-
-#### ``P(J)``: _how likely John calls ?_
-* ##### query: ``J``
-* ##### evidence: ``\emptyset``
-* ##### nuisance: ``B,E,A,M``
-
-
-#### ``P(J|+b)``: _how likely John calls if Burglary happens?_
-* ##### query: ``J``
-* ##### evidence: ``B=+b``
-* ##### nuisance: ``E, A`` and ``M``
-
-
-
-#### ``P(B|+j,+m)``: _how likely Burglary happens given both John and Mary calls?_
-* ##### query: ``B``
-* ##### evidence: ``J=+j, M =+m``
-* ##### nuisance: ``E`` and ``A``
-
-""",
-
-	
-html"""<br><br><br><br><center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/figs4CS5010/burglar.png" width = "300"/></center>"""
-	
-)
-
-# ╔═╡ 4edc91cb-89d6-45df-8055-c4752189bf7a
-# md"""
-
-
-# ## Query types
-
-
-# * **bottom-up**: given evidence (observations, data) infer the cause; opposite the direction of edges, 
-#   * *e.g.* $P(B|J,M)$
-# * **top-down**: given cause infer downstream r.v.s (follow the direction of edge), 
-#   * prediction of future data
-#   * *e.g.*  $P(J|B, E)$
-
-# * **mixture of both**: $P(J|M)$
-
-# """
-
-# ╔═╡ 32770f48-6f30-435a-86b2-b1ad272b29ff
-# html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/figs4CS5010/burglar.png" width = "300"/></center>"""
-
-# ╔═╡ 7518fc3a-685c-4089-9be8-1edb332a68d2
-md"""
-
-## The inference formula
-
-
-!!! information ""
-	#### Given a BN and query ``P(Q|\mathcal{E}=\mathbf{e})``:
-	```math
-	\Large \begin{align}
-	P(Q|\mathcal{E}=\mathbf{e}) &\propto P(Q, \mathcal{E}=\mathbf{e}) \\
-	&= \sum_{n_1}\ldots \sum_{n_k} P(Q, \mathcal{E}=\mathbf{e}, n_1, n_2\ldots n_k)\\
-	&= \sum_{n_1}\ldots \sum_{n_k} \left ( \prod_i \text{CPFs}\right )
-	\end{align}
-
-
-	```
-	* #### ``Q``: query random variable 
-	* #### ``\mathcal{E}``: conditioned evidence 
-	* #### ``\mathcal{N}``: nuisance (or hidden) random variables
-
-"""
-
-# ╔═╡ 8a0f33b2-28d1-475e-a30f-289fec3b59bd
-md"""
-
-## An example 
-
-#### Let's consider 
-
-
-$\Large P(J|+b, -e)$
-
-
-!!! question ""
-	#### *By conditional probability definition*
-	```math
-	\large P(J|+b, -e) = \frac{P(J, +b, -e)}{P(+b, -e)} = \frac{P(J, +b, -e)}{P(+j, +b, -e) + P(-j, +b, -e)}
-	```
-
-#### Note that the denominator (sum rule) is a **normalising constant**:
-
-```math
-\large P(+b, -e) = P(+j, +b, -e) + P(-j, +b, -e)\tag{sum rule}
-```
-
-*  ##### and it can be computed from the numerator ``P(J, +b, -e)`` 
-
-
-##
-
-!!! question ""
-	#### Therefore, as a short-hand notation, queries are often written as  
-
-	$$\Large P(J|+b, -e) \propto P(J, +b, -e)$$ 
-
-	#### or 
-	
-	$$\Large P(J|+b, -e) =\alpha P(J, +b, -e)$$ 
-	* ##### where ``\alpha = \frac{1}{P(+b, -e)}`` is the normalising constant's inverse
-
-
-"""
-
-# ╔═╡ 96c86194-fe8a-444d-ae43-fc98ad6e5181
-md"""
-## An example (cont.)
-
-#### Next, by ``\textcolor{red}{\text{sum rule}}`` 
-* ##### sum out the _nuisance_ random variables
-
-!!! question ""
-	$$\large\begin{align}
-	P(J|+b, -e) &= \alpha P(J, +b, -e)\\
-	\Aboxed{&= \alpha \sum_{a'}\sum_{m'} P(+b,-e,a',J,m')\;\;\;\textcolor{red}{\text{sum rule}}}
-	\end{align}$$
-
-
-
-"""
-
-# ╔═╡ 22134218-1606-45b0-89e2-f199bb17b15b
-md"""
-## An example (cont.)
-
-#### Next, by ``\textcolor{blue}{\text{factoring property}}`` of the BN
-
-!!! question ""
-	$$\large \begin{align}
-	&P(J|+b, -e) = \alpha P(J, +b, -e)\\
-	&= \alpha \sum_{a'}\sum_{m'} P(+b,-e,a',J,m')\;\;\;\textcolor{red}{\text{sum rule}}\\
-	\Aboxed{&=\alpha \sum_{a'}\sum_{m'} P(+b)P(-e)P(a'|+b,-e)P(J|a')P(m'|a')\;\;\;\textcolor{blue}{\normalsize\text{factor property}}} 
-	\end{align}$$
-
-"""
-
-# ╔═╡ 8c2f8f52-c440-4ad3-a08e-290156552c08
-md"""
-
-
-## Further details
-
-#### As a concrete example, to find, *e.g.*
-
-$\large P(J|+b, -e)$
-
-
-#### For $J=+j$ : 
-
-$$\begin{align}
-P(J&=+j|+b,-e) = \alpha \sum_{a'}\sum_{m'}P(+b)P(-e)P(a'|+b,-e)P( +j|a')P(m'|a')\\
-&= \alpha\times (+)\begin{cases}
-P(+b)P(-e)P(-a|+b,-e)P(+j|-a)P(-m |-a) & a'=-, m'=- \\
-P(+b)P(-e)P(-a |+b,-e)P(+j|-a )P(+m|-a ) & a'=-, m'=+ \\
-P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(-m|+a)& a'=+, m'=- \\
-P(+b)P(-e)P(+a|+b,-e)P(+j|+a)P(+m|+a) & a'=+, m'=+ 
-\end{cases} \\
-&= \alpha\times (+)\begin{cases}
-0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times (1-0.01) & a'=-, m'=- \\
-0.001 \times (1-0.002) \times (1-0.94) \times 0.05 \times 0.01 & a'=-, m'=+ \\
-0.001 \times (1-0.002) \times 0.94 \times 0.9 \times (1-0.7) & a'=+, m'=- \\
-0.001 \times (1-0.002) \times 0.94 \times 0.9 \times 0.7 & a'=+, m'=+ 
-\end{cases} \\
-&=\alpha \times 0.00847302
-\end{align}$$
-
-#### For $J=-j$ : 
-
-$$\begin{align}
-P(J&= -j|+b, -e) = \alpha \sum_{a'}\sum_{m'}P(+b)P(-e)P(a'|+b,-e)P(-j|a')P(m'|a')\\
-&= \alpha\times (+)\begin{cases}
-\ldots & a'=-, m'=- \\
-\ldots & a'=-, m'=+ \\
-\ldots & a'=+, m'=- \\
-\ldots & a'=+, m'=+
-\end{cases} \\
-&= \alpha \times 0.0001507
-
-\end{align}$$
-
-#### *Lastly*, normalise to find 
-$\alpha = \frac{1}{0.0008473+ 0.0001507}$
-
-$$\begin{align}
-P(J|+b, -e) &\propto \begin{cases} 0.00847302 & J= +j \\ 0.0001507 & J=-j \end{cases}\\
-&= \begin{cases} 0.849 & J= +j \\ 0.151 & J=-j \end{cases}
-\end{align}$$
-
-
-"""
-
-# ╔═╡ bbbd12d6-ec08-482c-a82b-e20161ebd507
-# md"""
-
-# !!! question "Question"
-# 	##### How many _multiplications_ involved?
-# """
-
-# ╔═╡ 2ac736f1-b27c-46a4-8ae4-d929a2efa5d8
-# Foldable("", md"
-# Roughly in the order
-
-# ```math
-# \Large 2^{N_k} \times \text{\# of factors} 
-# ```
-
-# * ##### ``N_k``: the number of nuisance variables
-# * ##### ``\#`` of factors: or number of nodes in a BN
-# * ##### ``O(2^{N_k}\cdot N)`` complexity
-# ")
-
-# ╔═╡ c7a8c934-e45d-4f34-9429-b7947cea95f8
-md"""
-
-## Another example: ``P(B|J=j, M=m)``
-
-$\Large P(B|J=j, M=m)$
-* ##### the nuisance random variables: ``\{E,A\}``
-
-\
-
-$$\large \begin{align}&P(B|J=j,M=m) = \alpha P(B,J=j,M=m) \;\;\;\;\;\;\text{\normalsize:conditional probability} \\
-&= \alpha \sum_{e'}\sum_{a'} P(B,e',a',J=j,M=m)\;\;\;\;\;\;\;\;\;\;\;\;\;\,\;\;\;\;\;\;\;\;\;\; \normalsize\text{:sum rule} \\
-&= \alpha \sum_{e'}\sum_{a'} P(B)P(e')P(a'|B,e')P(J=j|a')P(M=m|a') \;\; \text{\normalsize:factor property}\end{align}$$
-
-\
-
-* ##### for each ``B=b``, `enumerate` all ``(e', a') \in \{\texttt{t}, \texttt{f}\}^2`` and `sum`
-* ##### then `normalise`
-"""
-
-# ╔═╡ 0ab4585d-9d91-4457-a112-6df073c1f4c0
-# md"""
-# ## Mixture of both ``P(J|M=m)``
-
-
-
-# ###### For query ``P(J|M=m)``, nuisance random variables: $\{B,E, A\}$
-
-# $$
-# \begin{align}
-# P(J|M&=m) = \alpha P(J, M=m)\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \;\;\;\;\;\;\, \;\;\;\;\;\; \;\;\;\;\;\,\;\;\;\;\;\;\;\;\;\;\;\; \;\;\;\;\;  \color{blue}\text{:conditional probability}\\
-# &= \alpha \sum_{b'}\sum_{e'}\sum_{a'} P(B=b',E=e',A=a',J,M=m)\;\;\, \;\;\;\;\;\;\;\color{blue}\text{:sum rule}\\
-# &=\alpha \sum_{b'}\sum_{e'}\sum_{a'}  P(b')P(e')P(a'|b',e')P(J|a')P(M=m|a')\,\color{blue}\text{:factoring property}
-# \end{align}$$
-
-# Specifically,
-
-# * for each ``J=j``, `enumerate` ``(b', e', a')\in \{\texttt{t,f}\}^3``, then `sum`, 
-# * then `normalise`
-	
-# """
-
-# ╔═╡ e2a88805-3f01-4ab3-8b9e-a3e4012b49b7
-md"""
-
-## The formula
-
-
-!!! information ""
-	#### Given a BN and query ``P(Q|\mathcal{E}=\mathbf{e})``:
-	```math
-	\large \begin{align}
-	P(Q|\mathcal{E}=\mathbf{e}) &\propto P(Q, \mathcal{E}=\mathbf{e}) \\
-	&= \sum_{n_1}\ldots \sum_{n_k} P(Q, \mathcal{E}=\mathbf{e}, n_1, n_2\ldots n_k)\\
-	&= \sum_{n_1}\ldots \sum_{n_k} \left ( \prod_i \text{CPFs}\right )
-	\end{align}
-
-
-	```
-	* #### ``Q``: query random variable 
-	* #### ``\mathcal{E}``: conditioned evidence 
-	* #### ``\mathcal{N}``: nuisance (or hidden) random variables
-
-\
-
-
-#### More nuisance random variables ``\Rightarrow`` more sums
-
-
-
-"""
-
-# ╔═╡ 3131731b-f6de-43d5-bf78-8b1f321a04c5
-aside(tip(md"""
-
-``\mathcal{N, Q, E}``: this font denotes sets of random variables
-
-"""))
-
-# ╔═╡ 84481277-4b3f-4c9c-9181-a32e76fc8546
-md"""
-
-## A small improvement 
-
-
-#### We can improve the algorithm a little bit
-
-* ##### reducing some floating number multiplications
-
-
-* ##### based on distribution law
-
-
-$\large ax + ay = a(x+y)$
-"""
-
-# ╔═╡ 16c3e05c-35f1-4857-bbb4-e0feed7507fd
-md"""
-## Digress: summation notation
-
-#### Recall the summation  
-
-$\Large \sum_{i=1}^n ax_i =ax_1 + a x_2 + \ldots + ax_n= a\left (\sum_{i=1}^n x_i\right )$
-
-* ##### when ``a`` is a common factor, 
-  * it can be taken out or equivalently pushing summation $\,\Sigma_{\cdot}\,$ inwards
-\
-
-* ##### it saves some floating multiplication operations (why)
-  * remember floating number ``\times`` is more expensive than ``+/-``
-
-
-
-##
-
-#### Example: ``P(J|+b, -e)``
-
-
-
-
-"""
-
-# ╔═╡ 514f8322-f2f4-4384-8661-3c7683d21a78
-md"""
-
-
-$$\begin{align}
-P(J&=+j|+b,-e) = \alpha \sum_{a'}\sum_{m'}\boxed{P(+b)P(-e)}P(a'|+b,-e)P( +j|a')P(m'|a')\\
-&= \alpha\times (+)\begin{cases}
-\boxed{P(+b)P(-e)}P(-a|+b,-e)P(+j|-a)P(-m |-a) & a'=-, m'=- \\
-\boxed{P(+b)P(-e)}P(-a |+b,-e)P(+j|-a )P(+m|-a ) & a'=-, m'=+ \\
-\boxed{P(+b)P(-e)}P(+a|+b,-e)P(+j|+a)P(-m|+a)& a'=+, m'=- \\
-\boxed{P(+b)P(-e)}P(+a|+b,-e)P(+j|+a)P(+m|+a) & a'=+, m'=+ 
-\end{cases} \\
-&= \alpha\times (+)\begin{cases}
-\boxed{0.001 \times (1-0.002)} \times (1-0.94) \times 0.05 \times (1-0.01) \\
-\boxed{0.001 \times (1-0.002)} \times (1-0.94) \times 0.05 \times 0.01  \\
-\boxed{0.001 \times (1-0.002)} \times 0.94 \times 0.9 \times (1-0.7)  \\
-\boxed{0.001 \times (1-0.002)} \times 0.94 \times 0.9 \times 0.7 
-\end{cases} \\
-&=\alpha\times (+)\left (\boxed{0.001 \times (1-0.002)} \times\begin{cases}
-  (1-0.94) \times 0.05 \times (1-0.01)  \\
- (1-0.94) \times 0.05 \times 0.01  \\
- 0.94 \times 0.9 \times (1-0.7)  \\
-0.94 \times 0.9 \times 0.7 
-\end{cases}\right)
-\end{align}$$
-
-"""
-
-# ╔═╡ 469b80f9-26db-4d16-9980-7c7e100ba486
-md"""
-
-##
-#### That is 
-$$\large \begin{align}
-
-P(J|+b,-e)&= \alpha \sum_{a'}\sum_{m'} \underbrace{\boxed{P(+b)P(-e)}}_{\text{constant!}}P(A=a'|b,e)P(J|a')P(m'|a') \\
-  &= \alpha P(+b)P(-e)\sum_{a'}\sum_{m'}{P(a'|b,e)P(J|a')}P(m'|a')
-\end{align}$$
-
-
-
-* ##### ``P(+b)P(-e)`` is a common factor
-
-
-
-
-"""
-
-# ╔═╡ 86c2dd5d-d7c6-4f4b-a793-06aacc15375c
-md"""
-## Example (conti.)
-
-
-$$\large \begin{align}
-P(J|B=b,E=e)
-  &= \alpha P(b)P(e)\sum_{a'}\sum_{m'}\boxed{P(a'|b,e)P(J|a')}P(m'|a')
-\end{align}$$
-
-#### ``\boxed{P(a'|b,e)P(J|a')}`` is a common factor (from $m$'s perspective)
-* ##### or in other words, we push $\sum_{m'}$ inwards
-
-$$\large\begin{align}
-P(J|B=b,E=e)
-  = \alpha P(b)P(e)\sum_{a'}\boxed{P(a'|b,e)P(J|a')}\sum_{m'}P(m'|a')\end{align}$$
-
-"""
-
-# ╔═╡ 28611165-f29b-4163-bf02-796598804129
-# md"""
-# ## Further simplification
-
-# We can further simplify it, note that 
-
-
-# $$\sum_{m'}P(M=m'|a)=1$$
-
-# $$\Rightarrow P(J|b,e)
-#   = \alpha P(b)P(e)\sum_{a'}P(A=a'|b,e)P(J|A=a')\underbrace{\sum_{m'}P(M=m'|a')}_{1.0}$$
-
-# So we have 
-
-
-# $$P(J|b,e)
-#   = \alpha P(b)P(e)\sum_{a'}P(A=a'|b,e)P(J|A=a')$$
-
-# * 2 nested sums to 1 summation
-
-# * in general, it reduces from ``O(N \times 2^N)`` to ``O(2^N)``
-# * the difference is we compute while we back-track rather than wait until the end
-# """
-
-# ╔═╡ 42e93176-c83d-49af-91b8-f01cda668edd
-# md"""
-# ## More example
-
-# To find, *e.g.*
-
-# $P(J|B=\texttt t, E=\texttt f);$
-
-
-# For $J=\texttt t$: 
-
-# $$\begin{align}
-# P(J=\texttt t|+b,-e) &= \alpha P(+b)P(-e)\sum_{a'}P(A=a'|+b,-e)P(J=\texttt t|A=a')\\
-# &= \alpha\times .001 \times (1-.002) \times (.94\times .9 + (1-.94)\times.05) \\
-# &= \alpha 0.0008473
-# \end{align}$$
-
-# For $J=\texttt f$: 
-
-# $$\begin{align}
-# P(J=\texttt f|+b,-e) &= \alpha P(+b)P(-e)\sum_{a'}P(A=a|+b,-e)P(J=\texttt f|A=a')\\
-# &= \alpha\times .001 \times (1-.002) \times (.94\times (1-.9) + (1-.94)\times(1-.05))\\
-# &= \alpha 0.0001507
-
-# \end{align}$$
-
-# Normalise to find 
-
-# $\alpha = \frac{1}{0.0008473+ 0.0001507}$
-# $$P(J|B=\texttt t, E=\texttt f) = \begin{cases} 0.849 & J=\texttt t \\ 0.151 & J=\texttt f \end{cases}$$
-
-
-# """
-
-# ╔═╡ 693e0834-a970-44e4-a273-b71233984d70
-md"""
-
-## Another example
-
-
-
-$$\large \begin{align}P&(B|j,m) = \alpha P(B,j,m)\;\;\; \text{conditional probability rule} \\
-&= \alpha \sum_{e'}\sum_{a'} P(B,e',a',j,m)\;\;\; \text{summation rule} \\
-&= \alpha \sum_{e'}\sum_{a'} P(B)P(e')P(a'|B,e')P(j|a')P(m|a') \;\;\; \text{factoring CPTs} \\
-&= \alpha P(B)\sum_{e'}P(e')\sum_{a'} P(a'|B,e')P(j|a')P(m|a')\;\;\; \text{simplify} \end{align}$$
-
-
-"""
-
-# ╔═╡ bc2b6d66-ceb0-4fcb-8af7-53c3dde09f20
-md"""
-
-## How to implement the inference algorithm
-
-
-
-#### So far, we have computed by hand
-\
-
-#### _How to implement it_?
-
-"""
-
-# ╔═╡ 27d8fc53-e121-4e3b-9861-77fcbaf00cd3
-md"""
-
-
-## A key step: enumerate the nuisance 
-
-
-
-!!! information ""
-	#### Given a BN and query ``P(Q|\mathcal{E}=\mathbf{e})``:
-	```math
-	\large \begin{align}
-	P(Q|\mathcal{E}
-	&= \sum_{n_1}\ldots \sum_{n_k} P(Q, \mathcal{E}=\mathbf{e}, n_1, n_2\ldots n_k)\\
-	&= \sum_{n_1}\ldots \sum_{n_k} \left ( \prod_i \text{CPFs}\right )
-	\end{align}
-
-
-	```
-	* #### ``\mathcal{N}``: nuisance (or hidden) random variables
-
-
-
-## Digress: enumerate all - how ?
-
-
-#### To enumerate ``(x_1, x_2) \in (\texttt{t}, \texttt{f})^2``
-* ##### a nested `for` loop works
-
-```julia
-for x₁ in X₁ # assume X₁ returns the possible value x₁ can take
-	for x₂ in X₂
-		print(x₁, x₂) # or compute something interesting
-	end
-end
-```
-
-
-#### For three ``X_1, X_2, X_3``, 
-* ##### obviously, nest 3 `for` loops
-
-```julia
-for x₁ in X₁ # assume X₁ returns the possible value x₁ can take
-	for x₂ in X₂
-		for x₃ in X₃
-			print(x₁, x₂, x₃) # or compute something interesting
-		end
-	end
-end
-```
-
-## How to enumerate a dynamic list of vars
-
-!!! question "Question"
-	#### What if the list ``\{X_1, X_2, \ldots, X_n\}``'s size is not known before-hand
-    * #####  ``n`` is not known or fixed
-    * ##### how to enumerate a **dynamic** list
-
-
-"""
-
-# ╔═╡ 74125061-4bd4-41d5-aeeb-436074db9ded
-# md"""
-
-# ## A naive inference algorithm
-
-
-
-# ------
-# **A naive exact inference algorithm**
-
-# **Step 0.** tabulate and store the full joint distribution based on 
-
-# ```math
-# P(X_1, \ldots, X_n) = \prod_{i=1}^n P(X_i|\text{parent}(X_i))
-# ```
-
-
-# **Step 1.** for each value ``q`` that ``Q`` can take (*i.e.* apply sum rule)
-
-#    * find rows matches ``Q=q \wedge \mathcal{E} =\mathbf e``
-#    * sum their probabilities and store in ``\texttt{vec}[q]``
-
-
-# **Step 2.** normalise ``\texttt{vec}`` then return it
-  
-# $$P(Q=q|E=\mathbf{e}) = \frac{\texttt{vec}[q]}{\sum_q \texttt{vec}[q]}$$
-
-# ------	
-# """
-
-# ╔═╡ 9c58d982-b26a-4d98-9d04-c07ee3816e4a
-# md"""
-# ## A naive inference algorithm
-
-# For example, query 
-
-# $P(J|B=\texttt{t},E=\texttt{t})$
-
-# **Step 0**: populating the full joint table:
-
-
-# """
-
-# ╔═╡ 9f49f45d-e350-480e-a2c0-2fb48ada6d88
-# html"
-# <table>
-# <thead>
-#     <tr>
-#         <td>B</td>
-#         <td>E</td>
-#         <td>A</td>
-#         <td>J</td>
-#         <td>M</td>
-# 		<td>P(B,E,A,J,M)</td>
-#     </tr>
-#   </thead>
-#     <tr>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-# 		<td>..</td>
-#     </tr>
-# 	<tr>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>t</td>
-# 		<td>..</td>
-#     </tr>
-
-# 	<tr>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>t</td>
-#         <td>f</td>
-# 		<td>..</td>
-#     </tr>
-
-# 	<tr>
-#         <td>f</td>
-#         <td>f</td>
-#         <td>t</td>
-#         <td>t</td>
-#         <td>t</td>
-# <td>..</td>
-#     </tr>
-
-# 	<tr>
-#         <td>f</td>
-#         <td>t</td>
-#         <td>t</td>
-#         <td>f</td>
-#         <td>f</td>
-# <td>..</td>
-#     </tr>
-
-# 	<tr>
-# 		<td> ⋮</td> 
-#         <td>⋮</td>
-#         <td>⋮</td>
-#         <td>⋮</td>
-#         <td>⋮</td>
-#         <td>⋮</td>
-#     </tr>
-
-# 	<tr>
-#         <td>t</td>
-#         <td>t</td>
-#         <td>t</td>
-#         <td>t</td>
-#         <td>t</td>
-# <td>..</td>
-#     </tr>
-# </table>"
-
-# ╔═╡ 2a7462da-7a1a-4ab7-8544-5e2be106fd43
-# md"""
-
-# **Step 1**: enumerate query variable ``J`` and apply sum rule
-
-# * for ``J=\texttt{t}``, `filter` the table with the condition ``\{J=\texttt{t} \}\wedge\underbrace{\{ B=\texttt t\} \wedge \{E= \texttt t\}}_{\text{evidence: } \mathcal{E} =\mathbf{e}}``
-#   * sum and store it in ``\texttt{vec}[J=\texttt{t}]``
-# * for ``J=\texttt{f}``, `filter` the table with the condition ``\{J=\texttt{f} \}\wedge\underbrace{\{ B=\texttt t\} \wedge \{E= \texttt t\}}_{\text{evidence: } \mathcal{E} =\mathbf{e}}``
-#   * sum and store it in ``\texttt{vec}[J=\texttt{f}]``
-
-# **Step 2** normalise the ``\texttt{vec}`` and return it
-# """
-
-# ╔═╡ dfd22bfb-ff0a-4847-8cb1-24ef1d24f3c9
-# (tip(md"""
-
-# What **step 1** essentially does (sum out the nuisances):
-
-# $$\begin{align}&\texttt{vec}[J=t] =\sum_{a'}\sum_{m'}P(B=t, E=t, A=a', J=t, M=m')\end{align}$$
-
-
-# $$\begin{align}&\texttt{vec}[J=f] = \sum_{a'}\sum_{m'}P(B=t, E=t, A=a', J=f, M=m')\end{align}$$
-
-# """))
-
-# ╔═╡ ce48b420-bb2b-4a85-a875-2084897b0134
-# md"""
-
-# ## Naive algorithm does not scale
-# """
-
-# ╔═╡ ac943f36-669e-4799-8b31-6c8d01c328ba
-# md"""
-
-# ##### *Step 0* is not feasible !
-# \
-
-
-# ###### The joint full table is **HUGE** 
-
-# * ``2^N`` rows, ``N`` is the number of random variables in the BN
-# * space complexity is ``O(2^{N})``
-
-
-# The rest two steps, however, are plainly _simple and efficient_
-# * just basic database `filter` operation and summation
-# """
-
-# ╔═╡ 8e330eb7-7790-438e-bce6-9c02b45a8dc9
-md"""
-
-## Digress: enumerate all - Backtracking
-
-
-
-#### Recursive backtracking! 
-* ##### or recursive DFS tree search
-
-
-
-"""
-
-# ╔═╡ ee50d06e-eb24-49f1-9f56-846b097a3238
-html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/back_track.png" width = "650"/></center>"""
-
-# ╔═╡ 75cb72a8-7620-4b63-9a48-85414141354c
-md"""
-## 
-#### The **inputs**:
-
-* `cur_idx` = 1,2, ..., `length(Xs)`: current index of the variable to enumerate;
-* `Xs`: a list of variables to be enumerated, *e.g.* `Xs = [[0,1], [0,1], ...]`
-* `storage = [_, _, ..., _]`: a pre-allocated fix-sized array to rewrite the combinations
-
-```julia
-function enum_all(cur_idx, Xs, storage = [...])
-	# base case, when the storage is full
-	if cur_idx > length(Xs)
-		println(tape) # or do some computation
-	else
-		for each x in Xs[cur_idx]
-			# fill the tape at cur_idx
-			storage[cur_idx] = x
-			# move on to the next variable recursively
-			enum_all(cur_idx + 1, Xs, storage)
-		end
-	end
-end
-
-
-```
-
-"""
-
-# ╔═╡ 0406ae12-8be2-478f-993f-10837abfcadf
-md"""
-
-## Demonstration
-"""
-
-# ╔═╡ 67a909b7-ca69-4d0d-9a74-1d0622fb8397
-md"Show backtrack tree: $(@bind show_tree CheckBox(default=false))"
-
-# ╔═╡ 5d8f7bfc-7192-4ce4-a523-15abc80047dd
-function enum_all(Xs, cur_idx, storage)
-	if cur_idx > length(Xs)
-		println(storage)	# or compute something interesting with the combination
-	else
-		for v in Xs[cur_idx]
-			storage[cur_idx] = v
-			enum_all(Xs, cur_idx+1, storage)
-		end
-	end
-end
-
-# ╔═╡ 2a2437d6-b774-42f8-887e-6b5d4940b367
-begin
-	num_of_vars = 4
-	num_of_choices = 0:1
-	Xs = [num_of_choices for _ in 1:num_of_vars]
-	# Xs = [0:1, 1:3]
-end;
-
-# ╔═╡ e13c61c8-f0a8-49be-a523-9aca895640f2
-enum_all(Xs, 1, Array{Int}(undef, length(Xs)))
-
-# ╔═╡ 47e5143b-b7d5-4ba9-a0fa-b1abd74b1bde
-let
-	function enum_all_with_tree!(Xs, cur_idx, storage, graph = [], names = [])
-		if cur_idx > length(Xs)
-			return
-		else
-			for v in Xs[cur_idx]
-				storage[cur_idx] = v
-				# store the edges between the recursive function call
-				push!(graph, storage[1:cur_idx-1] => storage[1:cur_idx])
-				push!(names, storage[1:cur_idx]) # the names' storages in DFS order
-				enum_all_with_tree!(Xs, cur_idx+1, storage, graph, names)
-			end
-		end
-	end;
-	if show_tree
-		graph = []
-		names = [[]]
-		enum_all_with_tree!(Xs, 1, Array{Int}(undef, length(Xs)), graph, names)
-		name_dict = Dict()
-		names_strings = String[]
-		for (i, n) in enumerate(names)
-			push!(name_dict, n=>i)
-			# some boring but tedious processing to make the graph look tidy
-			st_str = ["\\_" for _ in 1:length(Xs)]
-			[st_str[j] = string(v) for (j, v) in enumerate(n)]
-			st_str_ = st_str[1]
-			[st_str_ *= " "*string(x)   for x in st_str[2:end]]
-			push!(names_strings, st_str_)
-		end
-		g = DiGraph(length(names))
-		for (s, d) in graph
-			si = name_dict[s]
-			di = name_dict[d]
-			add_edge!(g, si=> di)
-		end
-		TikzGraphs.plot(g, names_strings, options="scale=2, font=\\large\\sf")
-	end
-end
-
-# ╔═╡ 4a4a91c0-5c25-4e54-99e1-c731c53f4972
-# md"""
-# ## A second attempt
-
-# ###### Form the full joint table ``P(X_1, X_2, \ldots, X_n)`` in one-go is *neither*
-# * **necessary**
-# * nor **practical**
-
-
-# ###### The idea of second attempt:
-# * use recursive *back-tracking* to *enumerate* the **nuisance random variables** only ``\mathcal{N}=\{N_1, N_2, \ldots N_k\}``
-
-# -----
-
-# **Step 0.** initialise an emtpy array: ``\texttt{vec}``
-
-# **Step 1.** for each value ``q`` that ``Q`` can take
-#   * recursively enumerate all combinations ``(n_1, n_2,\ldots, n_k)`` by backtrack and **accumulates**
-# $$\texttt{vec}[q]  \mathrel{+}=  P(Q=q, E=\mathbf e, N_1 = n_1,  \ldots, N_k=n_k)$$
-
-# **Step 2.** normalise ``\texttt{vec}`` then return it
-  
-# $$P(Q=q|E=\mathbf{e}) = \frac{\texttt{vec}[q]}{\sum_q \texttt{vec}[q]}$$
-
-# ------	
-# """
-
-# ╔═╡ 98ebe05d-dd1f-4b6b-afab-e7f42606d5bb
-# md"""
-
-# ## A second attempt *vs* the first attempt
-
-
-# ##### The second attempt is better 
-
-# * we do not enumerate all but a smaller subset
-
-
-# Recall recursive backtrack essentially builds a tree
-
-# * the first attempt creates a full tree and **stores** it somewhere in RAM
-
-# * the second method creates a much smaller sub-tree and **does not** store them
-
-# ##
-
-# ##### However, the worst case is still very bad
-
-# Consider the extreme case in which ``\mathcal{E} =\emptyset``, *i.e.* no evidence
-
-# ```math
-# P(Q) \propto \underbrace{\sum_{n_1}\sum_{n_2}\ldots \sum_{n_k}}_{\texttt{N-1 of nuisance r.v.s} } P(Q, N_1 = n_1, \ldots, N_k =n_k)
-# ```
-# * space complexity is fine (backtracking is efficient in space complexity, you cannot beat it)
-#   * we do not store the table
-# * but time complexity is ``O(N \times 2^N)``
-#   * ``2^N`` combinations, each has ``N`` floating number multiplications
-# """
-
-# ╔═╡ 75c4a259-7d39-49bf-bda8-1e5a89770598
-# using Graphs
-
-# ╔═╡ a4d35349-ac25-4e47-adfc-c31e6798e265
-md"""
-
-## Enumerate-ask algorithm
-
-#### `ENUM_ASK`: for each ``q'``, compute unnormalised ``p(q', \mathbf{e})``, then normalise
------
-**function** ``\texttt{ENUM\_ASK}``(``{Q}``, ``\{\mathcal{E}=\mathbf{e}\}``, ``\texttt{bn}``)
-
-``\;\;`` ``\texttt{Xs} = \texttt{bn.VARS}\;\;\;\;\;``   # *i.e.* 
- list of all r.v.s in a topological order (parents before child nodes)
-
-``\;\;`` ``\texttt{vec} \leftarrow \texttt{an array with all zeros}\;\;\;\;\;\;`` # an array for ``P(q|\mathbf e)``
-
-``\;\;`` **for each**  value ``q`` of ``Q`` **do**
-
-  * ``\texttt{vec}(q) \leftarrow \texttt{ENUM-ALL}(\texttt{Xs}, 1, \{\mathcal{E}=\mathbf{e}\} \cup \{Q=q\})``
-``\;\;`` **endfor**
-
-``\;\;`` **return** ``\texttt{NORMALISE}(\texttt{vec})``
-
-**end**
-
------
-
-\
-
-
-#### `ENUM_ALL`: the backtracking bit
------
-**function** ``\texttt{ENUM\_ALL}````(````\texttt{Xs}``, ``\texttt{idx}``, ``\{\mathcal{E}=\mathbf{e}\}````)``
-
-``\;\;`` **if** ``\texttt{idx} > \texttt{length}(\texttt{Xs})`` **then return** ``1.0``
-
-``\;\;`` ``{X} \leftarrow \texttt{Xs}[\texttt{idx}]``
-
-``\;\;`` **if** ``X \in \{\mathcal{E}=\mathbf{e}\}`` # if the variable is in the evidence set or has been assigned
-
-``\;\;\;\;\;\;`` **return** ``P({x}| \texttt{parents}(X))\times \texttt{ENUM-ALL}(\texttt{Xs},  \texttt{idx+1}, \{\mathcal{E}=\mathbf{e}\})``
-
-``\;\;`` **else**  ``\;\;`` # X is nuisance, apply sum rule 
-
-
-
-``\;\;\;\;\;\;`` **return** ``\sum_x P(x |\texttt{parents}(X)) \times \texttt{ENUM-ALL}(\texttt{Xs}, \texttt{idx+1}, \{\mathcal{E}=\mathbf{e}\} \cup \{X =x\})``
-
-``\;\;`` **end**
-
-**end**
-
------
-
-
-* ##### note that Xs should be in a topological order (parents before child)
-
-
-
-"""
-
-# ╔═╡ a9d05d1b-f789-4a7f-80bf-767cd0981331
-md"""
-
-## An example
-"""
-
-# ╔═╡ 2cd4b610-2fbc-43ef-8c64-1480e60356ba
-md"""
-
-$$\Large\begin{align}P(b|j,m)
-&\propto P(b)\sum_{e'}P(e')\sum_{a'} P(a'|b,e')P(j|a')P(m|a')\end{align}$$
-
-"""
-
-# ╔═╡ 430cc0b0-4748-4900-be65-22c1f8b0ec02
-html"""<center><img src="https://leo.host.cs.st-andrews.ac.uk/figs/enum_ask.png" width = "450"/></center>"""
-
-# ╔═╡ d0ea7686-9d39-40d3-a695-8c71783a4a1f
-md"""
-## Summary: exact inference
-
-
-#### `ENUM-ASK` algorithm is an exact inference algorithm
-
-* ##### Time complexity: ``O(2^N)`` (``N`` is the size of the BN)
-
-
-
-* ##### A *rule of thumb*: for a BN with 25+ nodes, exact inference no longer works
-  * ##### we need approximate inference algorithms
 
 """
 
@@ -1191,14 +112,20 @@ md"""
 
 """
 
+# ╔═╡ 56013389-2242-4f23-b272-558fcdecd3b1
+# begin
+# 	using TikzGraphs
+# 	using Graphs
+# end
+
 # ╔═╡ 409d6b4d-f0c3-44b0-bfab-7331f434de9b
-begin
-	g = DiGraph(3)
-	add_edge!(g, 1, 2)
-	add_edge!(g, 1, 3)
-	# add_edge!(g, 1, 3)
-	graphplt = TikzGraphs.plot(g, [L"\textit{Coin}", L"Y_1", L"Y_2"], options="scale=2, font=\\Huge", node_style="draw", graph_options="nodes={draw,circle}")
-end;
+# begin
+# 	g = DiGraph(3)
+# 	add_edge!(g, 1, 2)
+# 	add_edge!(g, 1, 3)
+# 	# add_edge!(g, 1, 3)
+# 	graphplt = TikzGraphs.plot(g, [L"\textit{Coin}", L"Y_1", L"Y_2"], options="scale=2, font=\\Huge", node_style="draw", graph_options="nodes={draw,circle}")
+# end;
 
 # ╔═╡ 8bd9e5a8-4534-4c2b-b6e6-5736bd9ec745
 md"""
@@ -1221,13 +148,8 @@ md"""
 ## The Bayes' net
 """
 
-# ╔═╡ 36c02a04-f925-4bfe-a530-b63d89b5e620
-md"""
-
-| |
-| --- |
-| $(graphplt)|
-"""
+# ╔═╡ b865931c-6bd3-405b-b8bb-92e3f4b1646d
+html"<center><img src='https://leo.host.cs.st-andrews.ac.uk/figs/coinchoice.png' width = '180' /></center>"
 
 # ╔═╡ f8a835e6-55f7-42f1-84c2-ee977d70dc38
 md"""
@@ -1920,7 +842,6 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -1929,8 +850,15 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-TikzGraphs = "b4f28e30-c73f-5eaf-a395-8a9db949a742"
-TikzPictures = "37f6aa50-8035-52d0-81c2-5a1d08754b2d"
+
+[compat]
+Distributions = "~0.25.122"
+LaTeXStrings = "~1.4.0"
+Latexify = "~0.16.10"
+LogExpFunctions = "~0.3.29"
+Plots = "~1.41.2"
+PlutoTeachingTools = "~0.4.6"
+PlutoUI = "~0.7.75"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1939,7 +867,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "df00691ea38eda12cf87e5dc39c768181fd3312b"
+project_hash = "5f807f4ec98478322c2b5a77386291f7c8ac4e05"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1956,24 +884,6 @@ version = "1.1.3"
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.2"
-
-[[deps.ArnoldiMethod]]
-deps = ["LinearAlgebra", "Random", "StaticArrays"]
-git-tree-sha1 = "d57bd3762d308bded22c3b82d033bff85f6195c6"
-uuid = "ec485272-7323-5ecc-a04f-4719b315124d"
-version = "0.4.0"
-
-[[deps.Arpack]]
-deps = ["Arpack_jll", "Libdl", "LinearAlgebra"]
-git-tree-sha1 = "2ff92b71ba1747c5fdd541f8fc87736d82f40ec9"
-uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
-version = "0.4.0"
-
-[[deps.Arpack_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "OpenBLAS_jll", "Pkg"]
-git-tree-sha1 = "5ba6c757e8feccf03a1554dfaf3e26b3cfc7fd5e"
-uuid = "68821587-b530-5797-8361-c406ea357684"
-version = "3.5.1+1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -2060,10 +970,10 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
 [[deps.DataStructures]]
-deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "88d48e133e6d3dd68183309877eac74393daa7eb"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "e357641bb3e0638d353c4b29ea0e40ea644066a6"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.20"
+version = "0.19.3"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -2081,11 +991,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
@@ -2149,9 +1054,9 @@ version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "173e4d8f14230a7523ae11b9a3fa9edb3e0efd78"
+git-tree-sha1 = "5bfcd42851cf2f1b303f51525a54dc5e98d408a3"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.14.0"
+version = "1.15.0"
 weakdeps = ["PDMats", "SparseArrays", "Statistics"]
 
     [deps.FillArrays.extensions]
@@ -2196,15 +1101,21 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "f52c27dd921390146624f3aab95f4e8614ad6531"
+git-tree-sha1 = "f305bdb91e1f3fcc687944c97f2ede40585b1bd5"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.18"
+version = "0.73.19"
+
+    [deps.GR.extensions]
+    GRIJuliaExt = "IJulia"
+
+    [deps.GR.weakdeps]
+    IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "4b0406b866ea9fdbaf1148bc9c0b887e59f9af68"
+git-tree-sha1 = "de439fbc02b9dc0e639e67d7c5bd5811ff3b6f06"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.18+0"
+version = "0.73.19+1"
 
 [[deps.GettextRuntime_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
@@ -2229,12 +1140,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "8a6dbda1fd736d60cc477d99f2e7a042acfa46e8"
 uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
 version = "1.3.15+0"
-
-[[deps.Graphs]]
-deps = ["ArnoldiMethod", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
-git-tree-sha1 = "7a98c6502f4632dbe9fb1973a4244eaa3324e84d"
-uuid = "86223c79-3864-5bf0-83f7-82e725a168b6"
-version = "1.13.1"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -2277,11 +1182,6 @@ git-tree-sha1 = "0ee181ec08df7d7c911901ea38baf16f755114dc"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "1.0.0"
 
-[[deps.Inflate]]
-git-tree-sha1 = "d1b1b796e47d94588b3757fe84fbf65a5ec4a80d"
-uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
-version = "0.1.5"
-
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -2305,10 +1205,16 @@ uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
 version = "1.7.1"
 
 [[deps.JSON]]
-deps = ["Dates", "Mmap", "Parsers", "Unicode"]
-git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
+deps = ["Dates", "Logging", "Parsers", "PrecompileTools", "StructUtils", "UUIDs", "Unicode"]
+git-tree-sha1 = "5b6bb73f555bc753a6153deec3717b8904f5551c"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "0.21.4"
+version = "1.3.0"
+
+    [deps.JSON.extensions]
+    JSONArrowExt = ["ArrowTypes"]
+
+    [deps.JSON.weakdeps]
+    ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2433,22 +1339,10 @@ git-tree-sha1 = "2a7a12fc0a4e7fb773450d17975322aa77142106"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.41.2+0"
 
-[[deps.LightGraphs]]
-deps = ["Arpack", "Base64", "CodecZlib", "DataStructures", "DelimitedFiles", "Distributed", "LinearAlgebra", "Markdown", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics", "Test"]
-git-tree-sha1 = "fd35b52d1e347e71dfec1e2bf5dbc7d5a46db8ec"
-uuid = "093fc24a-ae57-5d10-9952-331d41423f4d"
-version = "1.0.2"
-
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 version = "1.12.0"
-
-[[deps.LittleCMS_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll"]
-git-tree-sha1 = "8e6a74641caf3b84800f2ccd55dc7ab83893c10b"
-uuid = "d3a379c0-f9a3-5b72-a4c0-6bf4d2e8af0f"
-version = "2.17.0+0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -2499,14 +1393,14 @@ version = "1.1.9"
 
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3cce3511ca2c6f87b19c34ffc623417ed2798cbd"
+git-tree-sha1 = "ff69a2b1330bcb730b9ac1ab7dd680176f5896b8"
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.10+0"
+version = "2.28.1010+0"
 
 [[deps.Measures]]
-git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
+git-tree-sha1 = "b513cedd20d9c914783d8ad83d08120702bf2c77"
 uuid = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
-version = "0.3.2"
+version = "0.3.3"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
@@ -2542,12 +1436,6 @@ version = "1.3.6+0"
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 version = "0.3.29+0"
-
-[[deps.OpenJpeg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libtiff_jll", "LittleCMS_jll", "libpng_jll"]
-git-tree-sha1 = "215a6666fee6d6b3a6e75f2cc22cb767e2dd393a"
-uuid = "643b3616-a352-519d-856d-80112ee9badc"
-version = "2.5.5+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2599,9 +1487,9 @@ weakdeps = ["StatsBase"]
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "1f7f9bbd5f7a2e5a9f7d96e51c9754454ea7f60b"
+git-tree-sha1 = "0662b083e11420952f2e62e17eddae7fc07d5997"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.4+0"
+version = "1.57.0+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -2632,15 +1520,15 @@ version = "3.3.0"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "PrecompileTools", "Printf", "Random", "Reexport", "StableRNGs", "Statistics"]
-git-tree-sha1 = "3ca9a356cd2e113c420f2c13bea19f8d3fb1cb18"
+git-tree-sha1 = "26ca162858917496748aad52bb5d3be4d26a228a"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.4.3"
+version = "1.4.4"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "12ce661880f8e309569074a61d3767e5756a199f"
+git-tree-sha1 = "7b990898534ea9797bf9bf21bd086850e5d9f817"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.41.1"
+version = "1.41.2"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2664,15 +1552,9 @@ version = "0.4.6"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "3faff84e6f97a7f18e0dd24373daa229fd358db5"
+git-tree-sha1 = "db8a06ef983af758d285665a0398703eb5bc1d66"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.73"
-
-[[deps.Poppler_jll]]
-deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "JpegTurbo_jll", "LibCURL_jll", "Libdl", "Libtiff_jll", "OpenJpeg_jll", "libpng_jll"]
-git-tree-sha1 = "7dbfb7f61c3aa5def7b7dad3fa344c1c2858a83b"
-uuid = "9c32591e-4766-534b-9725-b71a8799265b"
-version = "24.6.0+0"
+version = "0.7.75"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2797,11 +1679,6 @@ version = "1.3.0"
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 version = "1.11.0"
 
-[[deps.SharedArrays]]
-deps = ["Distributed", "Mmap", "Random", "Serialization"]
-uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
-version = "1.11.0"
-
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
@@ -2812,12 +1689,6 @@ version = "1.0.3"
 git-tree-sha1 = "f305871d2f381d21527c770d4788c06c097c9bc1"
 uuid = "777ac1f9-54b0-4bf8-805c-2214025038e7"
 version = "1.2.0"
-
-[[deps.SimpleTraits]]
-deps = ["InteractiveUtils", "MacroTools"]
-git-tree-sha1 = "be8eeac05ec97d379347584fa9fe2f5f76795bcb"
-uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
-version = "0.9.5"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
@@ -2848,28 +1719,9 @@ version = "2.6.1"
 
 [[deps.StableRNGs]]
 deps = ["Random"]
-git-tree-sha1 = "95af145932c2ed859b63329952ce8d633719f091"
+git-tree-sha1 = "4f96c596b8c8258cc7d3b19797854d368f243ddc"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
-version = "1.0.3"
-
-[[deps.StaticArrays]]
-deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "b8693004b385c842357406e3af647701fe783f98"
-uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.15"
-
-    [deps.StaticArrays.extensions]
-    StaticArraysChainRulesCoreExt = "ChainRulesCore"
-    StaticArraysStatisticsExt = "Statistics"
-
-    [deps.StaticArrays.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-
-[[deps.StaticArraysCore]]
-git-tree-sha1 = "6ab403037779dae8c514bad259f32a447262455a"
-uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.4"
+version = "1.0.4"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]
@@ -2889,9 +1741,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "a136f98cefaf3e2924a66bd75173d1c891ab7453"
+git-tree-sha1 = "064b532283c97daae49e544bb9cb413c26511f8c"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.7"
+version = "0.34.8"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2906,6 +1758,20 @@ version = "1.5.2"
     [deps.StatsFuns.weakdeps]
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+
+[[deps.StructUtils]]
+deps = ["Dates", "UUIDs"]
+git-tree-sha1 = "79529b493a44927dd5b13dde1c7ce957c2d049e4"
+uuid = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"
+version = "2.6.0"
+
+    [deps.StructUtils.extensions]
+    StructUtilsMeasurementsExt = ["Measurements"]
+    StructUtilsTablesExt = ["Tables"]
+
+    [deps.StructUtils.weakdeps]
+    Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
+    Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
@@ -2940,18 +1806,6 @@ version = "0.1.1"
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 version = "1.11.0"
-
-[[deps.TikzGraphs]]
-deps = ["LaTeXStrings", "LightGraphs", "TikzPictures"]
-git-tree-sha1 = "e64460dce33354e2247bfae60da7474e4470cdc2"
-uuid = "b4f28e30-c73f-5eaf-a395-8a9db949a742"
-version = "1.1.0"
-
-[[deps.TikzPictures]]
-deps = ["LaTeXStrings", "Poppler_jll"]
-git-tree-sha1 = "40d1559df48a5316eb66ad29ac734db6829e433d"
-uuid = "37f6aa50-8035-52d0-81c2-5a1d08754b2d"
-version = "3.2.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -3210,9 +2064,9 @@ version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
+git-tree-sha1 = "5cb3c5d039f880c0b3075803c8bf45cb95ae1e91"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.50+0"
+version = "1.6.51+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
@@ -3257,73 +2111,20 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─c9cfb450-3e8b-11ed-39c2-cd1b7df7ca01
+# ╟─1c626053-7907-4636-bcac-494f696c4f4b
+# ╟─1e916f0b-d8ef-476a-8702-4e7934830eb0
+# ╟─9b38bfda-c39f-4ac7-8e6c-a264d117eb81
+# ╟─60c3a104-3761-4079-8704-4642885ab956
 # ╟─cf07faa6-e571-4c79-9dd2-f03041b99706
 # ╟─3f49be0c-84d6-4bb1-adff-ab7f7ce15d05
 # ╟─cb9278ae-fd3f-4a2d-b188-ab463006db38
-# ╟─35494406-218b-41cd-b3af-6ba07d45d935
-# ╟─9179c13b-1cc4-4ec6-91f2-aaed6a312ee9
-# ╟─e67e822d-25c6-44a7-8ae2-13f42534d70b
-# ╟─eac84f66-a017-436e-b3a0-30a32677179e
-# ╟─ed09a8e6-6b8f-415d-84f2-bcaed9d32558
-# ╟─4f58814a-e990-445c-b959-f92d9aac1fe9
-# ╟─1769f7b4-4212-487a-bad3-bfaa3bf7026c
-# ╟─89be5e5a-76e6-446a-aa7a-00d0cccd0c33
-# ╟─5d45e5db-6b95-48c0-8471-c062c38aab2b
-# ╟─4edc91cb-89d6-45df-8055-c4752189bf7a
-# ╟─32770f48-6f30-435a-86b2-b1ad272b29ff
-# ╟─7518fc3a-685c-4089-9be8-1edb332a68d2
-# ╟─8a0f33b2-28d1-475e-a30f-289fec3b59bd
-# ╟─96c86194-fe8a-444d-ae43-fc98ad6e5181
-# ╟─22134218-1606-45b0-89e2-f199bb17b15b
-# ╟─8c2f8f52-c440-4ad3-a08e-290156552c08
-# ╟─bbbd12d6-ec08-482c-a82b-e20161ebd507
-# ╟─2ac736f1-b27c-46a4-8ae4-d929a2efa5d8
-# ╟─c7a8c934-e45d-4f34-9429-b7947cea95f8
-# ╟─0ab4585d-9d91-4457-a112-6df073c1f4c0
-# ╟─e2a88805-3f01-4ab3-8b9e-a3e4012b49b7
-# ╟─3131731b-f6de-43d5-bf78-8b1f321a04c5
-# ╟─84481277-4b3f-4c9c-9181-a32e76fc8546
-# ╟─16c3e05c-35f1-4857-bbb4-e0feed7507fd
-# ╟─514f8322-f2f4-4384-8661-3c7683d21a78
-# ╟─469b80f9-26db-4d16-9980-7c7e100ba486
-# ╟─86c2dd5d-d7c6-4f4b-a793-06aacc15375c
-# ╟─28611165-f29b-4163-bf02-796598804129
-# ╟─42e93176-c83d-49af-91b8-f01cda668edd
-# ╟─693e0834-a970-44e4-a273-b71233984d70
-# ╟─bc2b6d66-ceb0-4fcb-8af7-53c3dde09f20
-# ╟─27d8fc53-e121-4e3b-9861-77fcbaf00cd3
-# ╟─74125061-4bd4-41d5-aeeb-436074db9ded
-# ╟─9c58d982-b26a-4d98-9d04-c07ee3816e4a
-# ╟─9f49f45d-e350-480e-a2c0-2fb48ada6d88
-# ╟─2a7462da-7a1a-4ab7-8544-5e2be106fd43
-# ╟─dfd22bfb-ff0a-4847-8cb1-24ef1d24f3c9
-# ╟─ce48b420-bb2b-4a85-a875-2084897b0134
-# ╟─ac943f36-669e-4799-8b31-6c8d01c328ba
-# ╟─8e330eb7-7790-438e-bce6-9c02b45a8dc9
-# ╟─ee50d06e-eb24-49f1-9f56-846b097a3238
-# ╟─75cb72a8-7620-4b63-9a48-85414141354c
-# ╟─0406ae12-8be2-478f-993f-10837abfcadf
-# ╟─67a909b7-ca69-4d0d-9a74-1d0622fb8397
-# ╠═5d8f7bfc-7192-4ce4-a523-15abc80047dd
-# ╠═2a2437d6-b774-42f8-887e-6b5d4940b367
-# ╠═e13c61c8-f0a8-49be-a523-9aca895640f2
-# ╠═b26dd8ed-bae2-4454-af53-31711fad8605
-# ╟─47e5143b-b7d5-4ba9-a0fa-b1abd74b1bde
-# ╟─4a4a91c0-5c25-4e54-99e1-c731c53f4972
-# ╟─98ebe05d-dd1f-4b6b-afab-e7f42606d5bb
-# ╠═75c4a259-7d39-49bf-bda8-1e5a89770598
-# ╟─a4d35349-ac25-4e47-adfc-c31e6798e265
-# ╟─a9d05d1b-f789-4a7f-80bf-767cd0981331
-# ╟─2cd4b610-2fbc-43ef-8c64-1480e60356ba
-# ╟─430cc0b0-4748-4900-be65-22c1f8b0ec02
-# ╟─d0ea7686-9d39-40d3-a695-8c71783a4a1f
 # ╟─748ade25-bb47-4a67-a624-663fb7a5933f
 # ╟─344a3078-fad8-4985-8270-c52b7be034f2
-# ╠═56013389-2242-4f23-b272-558fcdecd3b1
+# ╟─56013389-2242-4f23-b272-558fcdecd3b1
 # ╟─409d6b4d-f0c3-44b0-bfab-7331f434de9b
 # ╟─8bd9e5a8-4534-4c2b-b6e6-5736bd9ec745
 # ╟─b44bedea-a0d8-497c-9285-ab5f7aed6d60
-# ╟─36c02a04-f925-4bfe-a530-b63d89b5e620
+# ╟─b865931c-6bd3-405b-b8bb-92e3f4b1646d
 # ╟─f8a835e6-55f7-42f1-84c2-ee977d70dc38
 # ╟─56acc259-7bc1-4f40-8745-b41950fba0ac
 # ╟─2de5daf9-b422-43fb-a22a-7c3c68ae0bf1
@@ -3356,13 +2157,13 @@ version = "1.9.2+0"
 # ╟─8acdeffb-b9e4-476a-ac05-07aa02d496b4
 # ╟─36ce371c-c728-4524-987d-547be3089da9
 # ╟─531456a8-692a-4f0e-ad97-864f9298a7e2
-# ╠═8e1c0744-e813-4f53-af1a-27d27ca58769
-# ╠═78060a5a-8201-4443-9a45-5b8390c9e702
-# ╠═f448ee19-f495-45c5-957d-45e15ac27f5f
-# ╠═5078f341-3190-40c0-8952-2fbbd8167c5b
+# ╟─8e1c0744-e813-4f53-af1a-27d27ca58769
+# ╟─78060a5a-8201-4443-9a45-5b8390c9e702
+# ╟─f448ee19-f495-45c5-957d-45e15ac27f5f
+# ╟─5078f341-3190-40c0-8952-2fbbd8167c5b
 # ╠═4c72a682-1b1d-4c64-afc3-a61fee9b37d1
 # ╠═da9325bd-28e9-4317-aba4-0e2a338b6cff
-# ╠═f1c3de03-6f24-4dd7-be37-3550118e3e7e
-# ╠═430c7352-8857-41bb-b919-7e330f9b84ff
+# ╟─f1c3de03-6f24-4dd7-be37-3550118e3e7e
+# ╟─430c7352-8857-41bb-b919-7e330f9b84ff
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
